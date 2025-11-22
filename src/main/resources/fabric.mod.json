@@ -1,0 +1,40 @@
+{
+	"schemaVersion": 1,
+	"id": "gambapvp",
+	"version": "${version}",
+	"name": "GambaPVP",
+	"description": "A simple Minecraft mod for creating and betting on PVP fights.",
+	"authors": [
+		"MunsterDuck"
+	],
+	"contact": {
+		"homepage": "https://fabricmc.net/",
+		"sources": "https://github.com/MunsterDuck/GambaPVP"
+	},
+	"license": "MIT",
+	"icon": "assets/gambapvp/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"com.munsterduck.gambapvp.GambaPVP"
+		],
+		"fabric-datagen": [
+			"com.munsterduck.gambapvp.GambaPVPDataGenerator"
+		],
+        "client": [
+          "com.munsterduck.gambapvp.client.GambaPVPClient"
+        ]
+	},
+	"mixins": [
+		"gambapvp.mixins.json"
+	],
+	"depends": {
+        "fabricloader": ">=0.18.1",
+        "minecraft": "1.20.1",
+		"java": ">=17",
+		"fabric-api": "*"
+	},
+	"suggests": {
+		"another-mod": "*"
+	}
+}
