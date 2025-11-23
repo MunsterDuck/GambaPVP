@@ -1,6 +1,7 @@
 package com.munsterduck.gambapvp;
 
 import com.mojang.brigadier.context.CommandContext;
+import com.munsterduck.gambapvp.item.ModItems;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerType;
@@ -27,6 +28,8 @@ public class GambaPVP implements ModInitializer {
     @Override
     public void onInitialize() {
         LOGGER.info("Initializing GambaPVP mod");
+
+        ModItems.registerModItems();
 
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
             dispatcher.register(
