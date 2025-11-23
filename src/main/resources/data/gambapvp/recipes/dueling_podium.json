@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "@#@",
+    " @ ",
+    "!!!"
+  ],
+  "key": {
+    "!": {
+      "item": "minecraft:smooth_stone"
+    },
+    "@": {
+      "item": "minecraft:#log"
+    },
+    "#": {
+      "item": "minecraft:diamond_sword"
+    }
+  },
+  "result":{
+    "item": "gambapvp:dueling_podium"
+  }
+}

@@ -2,6 +2,7 @@ package com.munsterduck.gambapvp;
 
 import com.mojang.brigadier.context.CommandContext;
 import com.munsterduck.gambapvp.item.ModItems;
+import com.munsterduck.gambapvp.block.ModBlocks;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerType;
@@ -30,10 +31,11 @@ public class GambaPVP implements ModInitializer {
         LOGGER.info("Initializing GambaPVP mod");
 
         ModItems.registerModItems();
+        ModBlocks.registerModBlocks();
 
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
             dispatcher.register(
-                    CommandManager.literal("gbattle").executes(this::executeCommand)
+                    CommandManager.literal("gbattle").executes(this::executeGambaCommand)
             );
         });
     }
@@ -46,17 +48,8 @@ public class GambaPVP implements ModInitializer {
                     new ExtendedScreenHandlerType<>(BattleSetupScreenHandler::new)
             );
 
-    private int executeCommand(CommandContext<ServerCommandSource> context) {
+    public static int openBattleSetup(ServerPlayerEntity player) {
         try {
-            ServerCommandSource source = context.getSource();
-
-            if (source.getPlayer() == null) {
-                source.sendError(Text.literal("Only players can use this command!"));
-                return 0;
-            }
-
-            ServerPlayerEntity player = source.getPlayer();
-
             // Collect online player names
             List<String> playerNames = player.getServer()
                     .getPlayerManager()
@@ -70,9 +63,18 @@ public class GambaPVP implements ModInitializer {
 
             return 1;
         } catch (Exception e) {
-            LOGGER.error("Error executing gbattle command", e);
-            context.getSource().sendError(Text.literal("Error opening battle GUI: " + e.getMessage()));
+            LOGGER.error("Error opening battle setup GUI", e);
             return 0;
         }
+    }
+
+    private int executeGambaCommand(CommandContext<ServerCommandSource> context) {
+        ServerPlayerEntity player = context.getSource().getPlayer();
+        if (player == null) {
+            context.getSource().sendError(Text.literal("Only players can use this command!"));
+            return 0;
+        }
+
+        return openBattleSetup(player);
     }
 }
