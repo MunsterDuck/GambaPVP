@@ -1,3 +1,5 @@
 {
-  "block.gambapvp.dueling_podium": "Dueling Podium"
+  "block.gambapvp.dueling_podium": "Dueling Podium",
+  "tooltip.gambapvp.dueling_podium.tooltip.shift": "Duel your friends and bet on the outcomes! Also looks badass.",
+  "tooltip.gambapvp.dueling_podium.tooltip": "Press §eSHIFT§r for more info"
 }

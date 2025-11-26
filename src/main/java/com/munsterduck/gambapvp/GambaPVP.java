@@ -3,10 +3,13 @@ package com.munsterduck.gambapvp;
 import com.mojang.brigadier.context.CommandContext;
 import com.munsterduck.gambapvp.item.ModItems;
 import com.munsterduck.gambapvp.block.ModBlocks;
+import com.munsterduck.gambapvp.util.ModTags;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerType;
+import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.Item;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.screen.ScreenHandlerType;
@@ -25,6 +28,11 @@ import java.util.List;
 public class GambaPVP implements ModInitializer {
 	public static final String MOD_ID = "gambapvp";
 	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
+
+    // This will be used to determine whether the betting item is in the TAG for gamblable items.
+    private boolean isGamblableCurrency(Item item) {
+        return item.getDefaultStack().isIn(ModTags.Items.GAMBAPVP_GAMBLABLE_CURRENCIES);
+    }
 
     @Override
     public void onInitialize() {
