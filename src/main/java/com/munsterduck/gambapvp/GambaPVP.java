@@ -1,22 +1,15 @@
 package com.munsterduck.gambapvp;
 
-import com.mojang.brigadier.context.CommandContext;
-import com.munsterduck.gambapvp.item.ModItems;
-import com.munsterduck.gambapvp.block.ModBlocks;
+import com.munsterduck.gambapvp.util.ModRegistries;
 import com.munsterduck.gambapvp.util.ModTags;
 import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerType;
-import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.screen.ScreenHandlerType;
-import net.minecraft.server.command.CommandManager;
-import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import com.munsterduck.gambapvp.screen.BattleSetupScreenHandler;
 import org.slf4j.Logger;
@@ -38,14 +31,7 @@ public class GambaPVP implements ModInitializer {
     public void onInitialize() {
         LOGGER.info("Initializing GambaPVP mod");
 
-        ModItems.registerModItems();
-        ModBlocks.registerModBlocks();
-
-        CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
-            dispatcher.register(
-                    CommandManager.literal("gbattle").executes(this::executeGambaCommand)
-            );
-        });
+        ModRegistries.registerModStuffs();
     }
 
     // Register the screen handler type
@@ -74,15 +60,5 @@ public class GambaPVP implements ModInitializer {
             LOGGER.error("Error opening battle setup GUI", e);
             return 0;
         }
-    }
-
-    private int executeGambaCommand(CommandContext<ServerCommandSource> context) {
-        ServerPlayerEntity player = context.getSource().getPlayer();
-        if (player == null) {
-            context.getSource().sendError(Text.literal("Only players can use this command!"));
-            return 0;
-        }
-
-        return openBattleSetup(player);
     }
 }
