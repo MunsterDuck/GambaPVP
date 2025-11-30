@@ -1,6 +1,7 @@
 package com.munsterduck.gambapvp.block.custom;
 
 import com.munsterduck.gambapvp.GambaPVP;
+import com.munsterduck.gambapvp.network.OpenBattleScreenPacket;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.gui.screen.Screen;
@@ -31,7 +32,7 @@ public class DuelingPodium extends Block {
         }
 
         if (player instanceof ServerPlayerEntity serverPlayer) {
-            GambaPVP.openBattleSetup(serverPlayer);
+            OpenBattleScreenPacket.send(serverPlayer);
         }
         return ActionResult.CONSUME;
     }

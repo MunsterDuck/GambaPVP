@@ -19,12 +19,6 @@ import net.minecraft.text.Text;
 
 public class LoadKitCommand {
 
-    // Suggestion provider for kit names
-    public static final SuggestionProvider<ServerCommandSource> KIT_SUGGESTIONS = (context, builder) -> {
-        KitManager.getKitNames(context.getSource().getServer()).forEach(builder::suggest);
-        return builder.buildFuture();
-    };
-
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher,
                                 CommandRegistryAccess commandRegistryAccess,
                                 CommandManager.RegistrationEnvironment registrationEnvironment) {
@@ -32,7 +26,7 @@ public class LoadKitCommand {
                 CommandManager.literal("gkit")
                     .then(CommandManager.literal("load")
                     .then(CommandManager.argument("kit_name", StringArgumentType.string())
-                    .suggests(KIT_SUGGESTIONS)
+                    .suggests(KitManager.KIT_SUGGESTIONS)
                     .executes(LoadKitCommand::run)))
         );
     }
@@ -57,21 +51,23 @@ public class LoadKitCommand {
             return 0;
         }
 
-        // Save current player inventory as backup
-        NbtCompound backupData = new NbtCompound();
-        NbtList backupItems = new NbtList();
+        if (!playerData.getPersistentData().contains("inventory_backup")) {
+            // Save current player inventory as backup
+            NbtCompound backupData = new NbtCompound();
+            NbtList backupItems = new NbtList();
 
-        for (int i = 0; i < playerInv.size(); i++) {
-            if (!playerInv.getStack(i).isEmpty()) {
-                NbtCompound itemTag = new NbtCompound();
-                itemTag.putByte("Slot", (byte) i);
-                playerInv.getStack(i).writeNbt(itemTag);
-                backupItems.add(itemTag);
+            for (int i = 0; i < playerInv.size(); i++) {
+                if (!playerInv.getStack(i).isEmpty()) {
+                    NbtCompound itemTag = new NbtCompound();
+                    itemTag.putByte("Slot", (byte) i);
+                    playerInv.getStack(i).writeNbt(itemTag);
+                    backupItems.add(itemTag);
+                }
             }
-        }
 
-        backupData.put("Items", backupItems);
-        playerData.getPersistentData().put("inventory_backup", backupData);
+            backupData.put("Items", backupItems);
+            playerData.getPersistentData().put("inventory_backup", backupData);
+        }
 
         // Clear current inventory
         playerInv.clear();

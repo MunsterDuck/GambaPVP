@@ -1,5 +1,15 @@
 {
   "block.gambapvp.dueling_podium": "Dueling Podium",
   "tooltip.gambapvp.dueling_podium.tooltip.shift": "Duel your friends and bet on the outcomes! Also looks badass.",
-  "tooltip.gambapvp.dueling_podium.tooltip": "Press §eSHIFT§r for more info"
+  "tooltip.gambapvp.dueling_podium.tooltip": "Press §eSHIFT§r for more info",
+  "key.gambapvp.toggle_hud": "Toggle Hud Hint",
+  "text.gambapvp.battle_screen": [
+    "",
+    {
+      "text": "Welcome to GambaPVP!\n\n",
+      "underlined": true,
+      "color": "#3AB0FF"
+    },
+    "The following screens will introduce you to the basic concepts of GambaPVP. They are almost all interactive - after reading the explanation you can play with the values to see how they affect The Box™ in the playground in real-time. In any of these screens you can open the inspector with the button on the bottom to see how this screen is laid out internally."
+  ]
 }

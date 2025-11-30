@@ -4,9 +4,11 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.munsterduck.gambapvp.util.KitData;
 import com.munsterduck.gambapvp.util.KitManager;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.inventory.Inventory;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.server.command.CommandManager;
@@ -20,9 +22,9 @@ public class SaveKitCommand {
                                 CommandManager.RegistrationEnvironment registrationEnvironment) {
         dispatcher.register(
                 CommandManager.literal("gkit")
-                    .then(CommandManager.literal("save")
-                    .then(CommandManager.argument("kit_name", StringArgumentType.string())
-                    .executes(SaveKitCommand::run)))
+                        .then(CommandManager.literal("save")
+                                .then(CommandManager.argument("kit_name", StringArgumentType.string())
+                                        .executes(SaveKitCommand::run)))
         );
     }
 
@@ -52,10 +54,17 @@ public class SaveKitCommand {
 
         kitData.put("Items", itemsList);
 
-        // Save to server-side storage
-        KitManager.saveKit(context.getSource().getServer(), kitName, kitData);
+        // Use main hand item as icon (or first item in hotbar)
+        ItemStack iconItem = player.getMainHandStack();
+        if (iconItem.isEmpty() && !playerInv.getStack(0).isEmpty()) {
+            iconItem = playerInv.getStack(0);
+        }
 
-        context.getSource().sendFeedback(() -> Text.literal("Kit '" + kitName + "' saved!"), true);
+        // Save kit with icon
+        KitData kit = new KitData(kitName, kitData, iconItem.copy());
+        KitManager.saveKit(context.getSource().getServer(), kit);
+
+        context.getSource().sendFeedback(() -> Text.literal("Kit '" + kitName + "' saved with icon!"), true);
         return 1;
     }
 }

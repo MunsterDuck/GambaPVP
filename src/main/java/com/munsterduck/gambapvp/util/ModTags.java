@@ -8,6 +8,12 @@ import net.minecraft.registry.tag.TagKey;
 import net.minecraft.util.Identifier;
 
 public class ModTags {
+
+    // This will be used to determine whether the betting item is in the TAG for gamblable items.
+    public static boolean isGamblableCurrency(Item item) {
+        return item.getDefaultStack().isIn(ModTags.Items.GAMBAPVP_GAMBLABLE_CURRENCIES);
+    }
+
     public static class Blocks {
 
         private static TagKey<Block> createBlockTag(String name) {

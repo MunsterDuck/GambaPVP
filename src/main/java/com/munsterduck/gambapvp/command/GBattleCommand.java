@@ -3,6 +3,7 @@ package com.munsterduck.gambapvp.command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import com.munsterduck.gambapvp.GambaPVP;
+import com.munsterduck.gambapvp.network.OpenBattleScreenPacket;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
@@ -26,8 +27,8 @@ public class GBattleCommand {
             context.getSource().sendError(Text.literal("Only players can use this command!"));
             return 0;
         }
-
-        return GambaPVP.openBattleSetup(player);
+        OpenBattleScreenPacket.send(player);
+        return 1;
     }
 
 }

@@ -57,7 +57,6 @@ public class LoadPreKitPlayerInventoryCommand {
 
         if (backupItems.isEmpty()) {
             context.getSource().sendFeedback(() -> Text.literal("Backup inventory is empty!"), false);
-            return 0;
         }
 
         // Clear current inventory

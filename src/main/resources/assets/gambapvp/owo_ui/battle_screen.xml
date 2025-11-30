@@ -1,0 +1,179 @@
+<owo-ui xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/wisp-forest/owo-lib/0.8/owo-ui.xsd">
+
+    <components>
+        <flow-layout direction="horizontal">
+            <children>
+                <label>
+                    <text>Start a Battle</text>
+                    <shadow>true</shadow>
+
+                    <positioning type="relative">50,5</positioning>
+                </label>
+
+                <label>
+                    <text translate="true">text.gambapvp.battle_screen</text>
+                    <max-width>250</max-width>
+                    <horizontal-text-alignment>center</horizontal-text-alignment>
+
+                    <margins>
+                        <all>15</all>
+                    </margins>
+                </label>
+
+                <flow-layout direction="vertical" id="box-container">
+                    <children>
+                        <box id="the-box">
+                            <color>#FF00D7FF</color>
+                            <fill>true</fill>
+                            <direction>top-to-bottom</direction>
+
+                            <sizing>
+                                <vertical method="fixed">50</vertical>
+                                <horizontal method="fixed">50</horizontal>
+                            </sizing>
+
+                            <positioning type="relative">0,0</positioning>
+                        </box>
+
+                        <button id="show-playground-button">
+                            <text>Show Playground</text>
+                            <sizing>
+                                <horizontal method="fixed">96</horizontal>
+                            </sizing>
+
+                            <positioning type="absolute">0,0</positioning>
+                        </button>
+                    </children>
+
+                    <surface>
+                        <flat>#77000000</flat>
+                        <outline>#FF121212</outline>
+                    </surface>
+
+                    <sizing>
+                        <vertical method="fixed">20</vertical>
+                        <horizontal method="fixed">96</horizontal>
+                    </sizing>
+                </flow-layout>
+
+                <!--                <flow-layout direction="vertical">-->
+                <!--                    <children>-->
+                <!--                        <template name="property-text-box">-->
+                <!--                            <property>top-margin</property>-->
+                <!--                            <property-name>Top Margin</property-name>-->
+                <!--                        </template>-->
+                <!--                        <template name="property-text-box">-->
+                <!--                            <property>bottom-margin</property>-->
+                <!--                            <property-name>Bottom Margin</property-name>-->
+                <!--                        </template>-->
+                <!--                        <template name="property-text-box">-->
+                <!--                            <property>left-margin</property>-->
+                <!--                            <property-name>Left Margin</property-name>-->
+                <!--                        </template>-->
+                <!--                        <template name="property-text-box">-->
+                <!--                            <property>right-margin</property>-->
+                <!--                            <property-name>Right Margin</property-name>-->
+                <!--                        </template>-->
+
+                <!--                        <checkbox id="centered-checkbox">-->
+                <!--                            <text>Centered</text>-->
+
+                <!--                            <margins>-->
+                <!--                                <vertical>2</vertical>-->
+                <!--                            </margins>-->
+                <!--                        </checkbox>-->
+                <!--                    </children>-->
+
+                <!--                    <margins>-->
+                <!--                        <left>10</left>-->
+                <!--                    </margins>-->
+                <!--                </flow-layout>-->
+
+                <flow-layout direction="horizontal">
+                    <children>
+                        <button id="inspector-button">
+                            <text>⚡ Inspector</text>
+                            <tooltip-text translate="true">text.owo-ui-academy.inspector_button_tooltip</tooltip-text>
+                        </button>
+
+                        <box>
+                            <color>#FF696969</color>
+                            <sizing>
+                                <vertical method="fixed">16</vertical>
+                                <horizontal method="fixed">1</horizontal>
+                            </sizing>
+                            <margins>
+                                <horizontal>5</horizontal>
+                            </margins>
+                        </box>
+
+                        <button id="previous-button">
+                            <text>⏴ Previous</text>
+                            <active>false</active>
+                            <margins>
+                                <right>2</right>
+                            </margins>
+                        </button>
+                        <button id="next-button">
+                            <text>Next ⏵</text>
+                        </button>
+                    </children>
+
+                    <positioning type="relative">50,100</positioning>
+
+                    <vertical-alignment>center</vertical-alignment>
+
+                    <surface>
+                        <panel dark="true"/>
+                    </surface>
+
+                    <padding>
+                        <all>6</all>
+                    </padding>
+
+                    <margins>
+                        <bottom>15</bottom>
+                    </margins>
+                </flow-layout>
+            </children>
+
+            <vertical-alignment>center</vertical-alignment>
+            <horizontal-alignment>center</horizontal-alignment>
+
+            <surface>
+                <flat>#C0101010</flat>
+            </surface>
+
+        </flow-layout>
+    </components>
+
+    <templates>
+        <property-text-box>
+            <flow-layout direction="horizontal">
+                <children>
+                    <text-box id="{{property}}-text-box">
+                        <sizing>
+                            <horizontal method="fixed">50</horizontal>
+                        </sizing>
+                        <text>0</text>
+                    </text-box>
+
+                    <label>
+                        <text>{{property-name}}</text>
+                        <shadow>true</shadow>
+                        <margins>
+                            <left>5</left>
+                        </margins>
+                    </label>
+                </children>
+
+                <margins>
+                    <vertical>2</vertical>
+                </margins>
+
+                <vertical-alignment>center</vertical-alignment>
+            </flow-layout>
+        </property-text-box>
+    </templates>
+
+</owo-ui>

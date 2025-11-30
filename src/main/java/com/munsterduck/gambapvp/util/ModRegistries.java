@@ -3,12 +3,14 @@ package com.munsterduck.gambapvp.util;
 import com.munsterduck.gambapvp.block.ModBlocks;
 import com.munsterduck.gambapvp.command.*;
 import com.munsterduck.gambapvp.item.ModItems;
+import com.munsterduck.gambapvp.network.NetworkHandler;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 
 public class ModRegistries {
     public static void registerModStuffs() {
         ModItems.registerModItems();
         ModBlocks.registerModBlocks();
+        NetworkHandler.registerServerPackets();
         registerCommands();
     }
     private static void registerCommands() {
