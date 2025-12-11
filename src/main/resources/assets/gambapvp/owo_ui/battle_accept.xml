@@ -1,0 +1,93 @@
+<owo-ui xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/wisp-forest/owo-lib/1.20/owo-ui.xsd">
+    <components>
+        <flow-layout direction="vertical">
+            <children>
+                <!-- Main dialog box -->
+                <flow-layout direction="vertical" id="dialog-panel">
+                    <children>
+                        <!-- Title -->
+                        <label id="title-label">
+                            <text>Battle Request</text>
+                            <color>#FFD700</color>
+                            <shadow>true</shadow>
+                        </label>
+
+                        <!-- Sender info -->
+                        <label id="sender-label">
+                            <text>Player challenges you!</text>
+                            <color>#FFFFFF</color>
+                        </label>
+
+                        <!-- Battle details panel -->
+                        <flow-layout direction="vertical" id="details-panel">
+                            <children>
+                                <label>
+                                    <text>Battle Details:</text>
+                                    <color>#AAAAAA</color>
+                                </label>
+
+                                <label id="kit-label">
+                                    <text>Kit: Unknown</text>
+                                    <color>#FFFFFF</color>
+                                </label>
+
+                                <label id="rules-label">
+                                    <text>First to X wins</text>
+                                    <color>#FFFFFF</color>
+                                </label>
+
+                                <label id="inventory-label">
+                                    <text>Keep Inventory: OFF</text>
+                                    <color>#FFFFFF</color>
+                                </label>
+                            </children>
+                            <padding>
+                                <all>10</all>
+                            </padding>
+                            <surface>
+                                <panel dark="true"/>
+                            </surface>
+                        </flow-layout>
+
+                        <!-- Action buttons -->
+                        <flow-layout direction="horizontal" id="button-row">
+                            <children>
+                                <button id="accept-button">
+                                    <text>Accept</text>
+                                    <sizing>
+                                        <horizontal method="fixed">100</horizontal>
+                                    </sizing>
+                                </button>
+
+                                <button id="decline-button">
+                                    <text>Decline</text>
+                                    <sizing>
+                                        <horizontal method="fixed">100</horizontal>
+                                    </sizing>
+                                </button>
+                            </children>
+                            <horizontal-alignment>center</horizontal-alignment>
+                        </flow-layout>
+                    </children>
+                    <padding>
+                        <all>20</all>
+                    </padding>
+                    <horizontal-alignment>center</horizontal-alignment>
+                    <surface>
+                        <panel dark="true"/>
+                    </surface>
+                    <sizing>
+                        <horizontal method="fixed">300</horizontal>
+                        <vertical method="content">300</vertical>
+                    </sizing>
+                </flow-layout>
+            </children>
+            <vertical-alignment>center</vertical-alignment>
+            <horizontal-alignment>center</horizontal-alignment>
+            <surface>
+                <vanilla-translucent/>
+            </surface>
+        </flow-layout>
+    </components>
+</owo-ui>

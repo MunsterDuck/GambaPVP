@@ -1,7 +1,6 @@
 package com.munsterduck.gambapvp.command;
 
 import com.mojang.brigadier.CommandDispatcher;
-import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
@@ -17,7 +16,7 @@ import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 
-public class LoadPreKitPlayerInventoryCommand {
+public class LoadNormalPlayerInventoryCommand {
 
     // Suggestion provider for kit names
     public static final SuggestionProvider<ServerCommandSource> KIT_SUGGESTIONS = (context, builder) -> {
@@ -31,7 +30,7 @@ public class LoadPreKitPlayerInventoryCommand {
         dispatcher.register(
                 CommandManager.literal("gkit")
                     .then(CommandManager.literal("backup")
-                    .executes(LoadPreKitPlayerInventoryCommand::run))
+                    .executes(LoadNormalPlayerInventoryCommand::run))
         );
     }
 

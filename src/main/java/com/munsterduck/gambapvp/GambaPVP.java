@@ -1,5 +1,6 @@
 package com.munsterduck.gambapvp;
 
+import com.munsterduck.gambapvp.network.BattleRequestPacket;
 import com.munsterduck.gambapvp.util.ModRegistries;
 import com.munsterduck.gambapvp.util.ModTags;
 import io.wispforest.owo.ui.component.Components;
@@ -23,5 +24,6 @@ public class GambaPVP implements ModInitializer {
         LOGGER.info("Initializing GambaPVP mod");
 
         ModRegistries.registerModStuffs();
+        BattleRequestPacket.init();
     }
 }

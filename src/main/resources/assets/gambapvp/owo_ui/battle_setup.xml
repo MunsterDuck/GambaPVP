@@ -1,0 +1,215 @@
+<owo-ui xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/wisp-forest/owo-lib/1.20/owo-ui.xsd">
+    <components>
+        <!-- Root container -->
+        <flow-layout direction="vertical" id="root">
+            <children>
+                <!-- Main content panel -->
+                <draggable>
+                    <flow-layout direction="vertical" id="main-panel">
+                        <children>
+                            <!-- Title label -->
+                            <label id="title-label">
+                                <text>Battle Setup</text>
+                                <color>#FFFFFF</color>
+                                <shadow>true</shadow>
+                            </label>
+
+                            <!-- Content container that changes per step -->
+                            <flow-layout direction="vertical" id="content-container">
+                                <children>
+                                    <!-- Kit Selection Step (Step 0) -->
+                                    <flow-layout direction="vertical" id="kit-selection-step">
+                                        <children>
+                                            <label id="kit-instruction-label">
+                                                <text>Click a kit to select it</text>
+                                                <color>#AAAAAA</color>
+                                            </label>
+
+                                            <!-- Scrollable kit grid -->
+                                            <scroll direction="vertical" id="kit-scroll">
+                                                <flow-layout id="kit-grid" direction="vertical">
+                                                    <children>
+                                                        <!-- Kits will be added dynamically -->
+                                                    </children>
+                                                    <horizontal-alignment>center</horizontal-alignment>
+                                                    <sizing>
+                                                        <horizontal method="content">0</horizontal>
+                                                        <vertical method="content">0</vertical>
+                                                    </sizing>
+                                                    <gap>1</gap>
+                                                </flow-layout>
+                                                <surface>
+                                                    <outline>#000000</outline>
+                                                </surface>
+                                                <padding>
+                                                    <all>2</all>
+                                                </padding>
+                                                <sizing>
+                                                    <vertical method="fixed">100</vertical>
+                                                    <horizontal method="fixed">200</horizontal>
+                                                </sizing>
+                                            </scroll>
+                                        </children>
+                                        <gap>5</gap>
+                                        <padding>
+                                            <vertical>10</vertical>
+                                        </padding>
+                                        <horizontal-alignment>center</horizontal-alignment>
+                                    </flow-layout>
+
+                                    <!-- Rules Setup Step (Step 1) -->
+                                    <flow-layout direction="vertical" id="rules-step">
+                                        <children>
+                                            <label id="selected-kit-label">
+                                                <text>Selected: No Kit</text>
+                                                <color>#FFFFFF</color>
+                                            </label>
+
+                                            <label>
+                                                <text>Win Condition:</text>
+                                                <color>#FFFF00</color>
+                                            </label>
+
+                                            <button id="wins-1-button">
+                                                <text>First to 1</text>
+                                            </button>
+                                            <button id="wins-3-button">
+                                                <text>First to 3 ✓</text>
+                                            </button>
+                                            <button id="wins-5-button">
+                                                <text>First to 5</text>
+                                            </button>
+                                            <button id="wins-7-button">
+                                                <text>First to 7</text>
+                                            </button>
+
+                                            <button id="keep-inventory-button">
+                                                <text>Keep Inventory: ON</text>
+                                            </button>
+
+                                            <button id="rules-next-button">
+                                                <text>Next</text>
+                                            </button>
+                                        </children>
+                                        <padding>
+                                            <vertical>10</vertical>
+                                        </padding>
+                                        <horizontal-alignment>center</horizontal-alignment>
+                                    </flow-layout>
+
+                                    <!-- Player Selection Step (Step 2) -->
+                                    <flow-layout direction="vertical" id="player-selection-step">
+                                        <children>
+                                            <label>
+                                                <text>Select your opponent:</text>
+                                                <color>#FFFF00</color>
+                                            </label>
+
+                                            <scroll direction="vertical" id="player-list-scroll">
+                                                <flow-layout direction="vertical" id="player-list">
+                                                    <children>
+                                                        <!-- Players will be added dynamically -->
+                                                    </children>
+                                                    <horizontal-alignment>center</horizontal-alignment>
+                                                </flow-layout>
+                                                <sizing>
+                                                    <vertical method="fixed">150</vertical>
+                                                    <horizontal method="fixed">200</horizontal>
+                                                </sizing>
+                                            </scroll>
+                                        </children>
+                                        <padding>
+                                            <vertical>10</vertical>
+                                        </padding>
+                                        <horizontal-alignment>center</horizontal-alignment>
+                                    </flow-layout>
+
+                                    <!-- Wager Step (Step 3) -->
+                                    <flow-layout direction="vertical" id="wager-step">
+                                        <children>
+                                            <label>
+                                                <text>Add wager items (optional)</text>
+                                                <color>#FFFF00</color>
+                                            </label>
+
+                                            <button id="add-wager-button">
+                                                <text>Add Wager Items (Coming Soon)</text>
+                                            </button>
+
+                                            <button id="send-request-button">
+                                                <text>Send Battle Request</text>
+                                            </button>
+                                        </children>
+                                        <padding>
+                                            <vertical>10</vertical>
+                                        </padding>
+                                        <horizontal-alignment>center</horizontal-alignment>
+                                    </flow-layout>
+                                </children>
+                                <horizontal-alignment>center</horizontal-alignment>
+                            </flow-layout>
+                        </children>
+                        <gap>5</gap>
+                        <padding>
+                            <all>10</all>
+                        </padding>
+                        <horizontal-alignment>center</horizontal-alignment>
+                        <vertical-alignment>center</vertical-alignment>
+                        <surface>
+                            <panel dark="true"/>
+                        </surface>
+                        <sizing>
+                            <horizontal method="content">0</horizontal>
+                            <vertical method="content">0</vertical>
+                        </sizing>
+                    </flow-layout>
+                </draggable>
+
+                <!-- Back button at bottom -->
+                <button id="back-button">
+                    <text>Back</text>
+                    <sizing>
+                        <horizontal method="fixed">80</horizontal>
+                    </sizing>
+                </button>
+            </children>
+            <gap>5</gap>
+            <vertical-alignment>center</vertical-alignment>
+            <horizontal-alignment>center</horizontal-alignment>
+            <surface>
+                <vanilla-translucent/>
+            </surface>
+        </flow-layout>
+    </components>
+    <templates>
+        <!-- Template for each kit button -->
+        <template name="kit-button">
+            <flow-layout direction="horizontal">
+                <children>
+                    <item id="kit-item">
+                        <stack>{{kit-stack}}</stack>
+                    </item>
+                    <label id="kit-name-label">
+                        <text>{{kit-name}}</text>
+                        <color>#FFFFFF</color>
+                        <shadow>true</shadow>
+                    </label>
+                </children>
+                <gap>5</gap>
+                <padding>
+                    <all>5</all>
+                </padding>
+                <surface>
+                    <panel dark="false"/>
+                </surface>
+                <horizontal-alignment>left</horizontal-alignment>
+                <vertical-alignment>center</vertical-alignment>
+                <sizing>
+                    <horizontal method="fixed">192</horizontal>
+                    <vertical method="content">0</vertical>
+                </sizing>
+            </flow-layout>
+        </template>
+    </templates>
+</owo-ui>
