@@ -5,8 +5,7 @@
         <flow-layout direction="vertical" id="root">
             <children>
                 <!-- Main content panel -->
-                <draggable>
-                    <flow-layout direction="vertical" id="main-panel">
+                <flow-layout direction="vertical" id="main-panel">
                         <children>
                             <!-- Title label -->
                             <label id="title-label">
@@ -21,11 +20,6 @@
                                     <!-- Kit Selection Step (Step 0) -->
                                     <flow-layout direction="vertical" id="kit-selection-step">
                                         <children>
-                                            <label id="kit-instruction-label">
-                                                <text>Click a kit to select it</text>
-                                                <color>#AAAAAA</color>
-                                            </label>
-
                                             <!-- Scrollable kit grid -->
                                             <scroll direction="vertical" id="kit-scroll">
                                                 <flow-layout id="kit-grid" direction="vertical">
@@ -46,82 +40,109 @@
                                                     <all>2</all>
                                                 </padding>
                                                 <sizing>
-                                                    <vertical method="fixed">100</vertical>
+                                                    <vertical method="fixed">139</vertical>
                                                     <horizontal method="fixed">200</horizontal>
                                                 </sizing>
                                             </scroll>
                                         </children>
-                                        <gap>5</gap>
-                                        <padding>
-                                            <vertical>10</vertical>
-                                        </padding>
                                         <horizontal-alignment>center</horizontal-alignment>
                                     </flow-layout>
 
                                     <!-- Rules Setup Step (Step 1) -->
                                     <flow-layout direction="vertical" id="rules-step">
                                         <children>
-                                            <label id="selected-kit-label">
-                                                <text>Selected: No Kit</text>
-                                                <color>#FFFFFF</color>
-                                            </label>
+                                            <flow-layout id="rules-grid" direction="vertical">
+                                                <children>
+                                                    <!-- Win Conditions Go Here -->
+                                                </children>
+                                                <horizontal-alignment>center</horizontal-alignment>
+                                                <sizing>
+                                                    <horizontal method="content">0</horizontal>
+                                                    <vertical method="content">0</vertical>
+                                                </sizing>
+                                                <gap>1</gap>
+                                                <surface>
+                                                    <outline>#000000</outline>
+                                                </surface>
+                                                <padding>
+                                                    <all>2</all>
+                                                </padding>
+                                            </flow-layout>
 
-                                            <label>
-                                                <text>Win Condition:</text>
-                                                <color>#FFFF00</color>
-                                            </label>
-
-                                            <button id="wins-1-button">
-                                                <text>First to 1</text>
-                                            </button>
-                                            <button id="wins-3-button">
-                                                <text>First to 3 ✓</text>
-                                            </button>
-                                            <button id="wins-5-button">
-                                                <text>First to 5</text>
-                                            </button>
-                                            <button id="wins-7-button">
-                                                <text>First to 7</text>
-                                            </button>
-
-                                            <button id="keep-inventory-button">
-                                                <text>Keep Inventory: ON</text>
-                                            </button>
-
-                                            <button id="rules-next-button">
-                                                <text>Next</text>
-                                            </button>
+                                            <flow-layout direction="horizontal" id="keep-inventory-button">
+                                                <children>
+                                                    <checkbox id="keep-inventory-checkbox">
+                                                        <active>true</active>
+                                                        <sizing>
+                                                            <horizontal method="fixed">20</horizontal>
+                                                            <vertical method="fixed">20</vertical>
+                                                        </sizing>
+                                                    </checkbox>
+                                                    <label id="keep-inventory-label">
+                                                        <text>Keep Inventory</text>
+                                                        <color>#FFFFFF</color>
+                                                        <shadow>true</shadow>
+                                                    </label>
+                                                </children>
+                                                <gap>5</gap>
+                                                <padding>
+                                                    <all>5</all>
+                                                </padding>
+                                                <surface>
+                                                    <panel dark="false"/>
+                                                </surface>
+                                                <horizontal-alignment>left</horizontal-alignment>
+                                                <vertical-alignment>center</vertical-alignment>
+                                                <sizing>
+                                                    <horizontal method="fixed">192</horizontal>
+                                                    <vertical method="content">0</vertical>
+                                                </sizing>
+                                            </flow-layout>
                                         </children>
-                                        <padding>
-                                            <vertical>10</vertical>
-                                        </padding>
+                                        <gap>5</gap>
                                         <horizontal-alignment>center</horizontal-alignment>
                                     </flow-layout>
 
                                     <!-- Player Selection Step (Step 2) -->
                                     <flow-layout direction="vertical" id="player-selection-step">
                                         <children>
-                                            <label>
-                                                <text>Select your opponent:</text>
-                                                <color>#FFFF00</color>
-                                            </label>
-
                                             <scroll direction="vertical" id="player-list-scroll">
                                                 <flow-layout direction="vertical" id="player-list">
                                                     <children>
+                                                        <flow-layout direction="vertical">
+                                                            <children>
+                                                                <label>
+                                                                    <text>No Players Found</text>
+                                                                    <color>#FFFFFF</color>
+                                                                    <shadow>true</shadow>
+                                                                </label>
+                                                            </children>
+                                                            <padding>
+                                                                <vertical>10</vertical>
+                                                            </padding>
+                                                            <horizontal-alignment>center</horizontal-alignment>
+                                                            <sizing>
+                                                                <vertical method="content">0</vertical>
+                                                                <horizontal method="fixed">200</horizontal>
+                                                            </sizing>
+                                                        </flow-layout>
                                                         <!-- Players will be added dynamically -->
                                                     </children>
                                                     <horizontal-alignment>center</horizontal-alignment>
                                                 </flow-layout>
+                                                <surface>
+                                                    <outline>#000000</outline>
+                                                </surface>
+                                                <padding>
+                                                    <all>2</all>
+                                                </padding>
                                                 <sizing>
                                                     <vertical method="fixed">150</vertical>
                                                     <horizontal method="fixed">200</horizontal>
                                                 </sizing>
                                             </scroll>
                                         </children>
-                                        <padding>
-                                            <vertical>10</vertical>
-                                        </padding>
+                                        <gap>5</gap>
                                         <horizontal-alignment>center</horizontal-alignment>
                                     </flow-layout>
 
@@ -141,13 +162,30 @@
                                                 <text>Send Battle Request</text>
                                             </button>
                                         </children>
-                                        <padding>
-                                            <vertical>10</vertical>
-                                        </padding>
                                         <horizontal-alignment>center</horizontal-alignment>
                                     </flow-layout>
                                 </children>
                                 <horizontal-alignment>center</horizontal-alignment>
+                            </flow-layout>
+
+                            <flow-layout direction="horizontal">
+                                <children>
+                                    <button id="back-button">
+                                        <text>Back</text>
+                                        <renderer>
+                                            <flat color="dark-gray" hovered-color="gray" disabled-color="black"/>
+                                        </renderer>
+                                    </button>
+
+                                    <button id="next-button">
+                                        <text>Next</text>
+                                        <active>false</active>
+                                        <renderer>
+                                            <flat color="dark-gray" hovered-color="gray" disabled-color="black"/>
+                                        </renderer>
+                                    </button>
+                                </children>
+                                <gap>4</gap>
                             </flow-layout>
                         </children>
                         <gap>5</gap>
@@ -164,15 +202,6 @@
                             <vertical method="content">0</vertical>
                         </sizing>
                     </flow-layout>
-                </draggable>
-
-                <!-- Back button at bottom -->
-                <button id="back-button">
-                    <text>Back</text>
-                    <sizing>
-                        <horizontal method="fixed">80</horizontal>
-                    </sizing>
-                </button>
             </children>
             <gap>5</gap>
             <vertical-alignment>center</vertical-alignment>
@@ -183,7 +212,80 @@
         </flow-layout>
     </components>
     <templates>
-        <!-- Template for each kit button -->
+        <template name="win-button">
+            <flow-layout direction="horizontal">
+                <children>
+                    <checkbox id="win-checkbox">
+                        <active>false</active>
+                        <sizing>
+                            <horizontal method="fixed">20</horizontal>
+                            <vertical method="fixed">20</vertical>
+                        </sizing>
+                    </checkbox>
+
+                    <label id="win-label">
+                        <text>First to {{wins}}</text>
+                        <color>#FFFFFF</color>
+                        <shadow>true</shadow>
+                    </label>
+                </children>
+                <gap>5</gap>
+                <padding>
+                    <all>5</all>
+                </padding>
+                <surface>
+                    <panel dark="false"/>
+                </surface>
+                <horizontal-alignment>left</horizontal-alignment>
+                <vertical-alignment>center</vertical-alignment>
+                <sizing>
+                    <horizontal method="fixed">192</horizontal>
+                    <vertical method="content">0</vertical>
+                </sizing>
+            </flow-layout>
+        </template>
+        <template name="player-button">
+            <flow-layout direction="horizontal">
+                <children>
+                    <checkbox id="player-checkbox">
+                        <active>false</active>
+                        <sizing>
+                            <horizontal method="fixed">20</horizontal>
+                            <vertical method="fixed">20</vertical>
+                        </sizing>
+                    </checkbox>
+
+                    <stack-layout id="player-face-stack">
+                        <children>
+                            <!-- Skin dynamically shown -->
+                        </children>
+                        <sizing>
+                            <horizontal method="fixed">20</horizontal>
+                            <vertical method="fixed">20</vertical>
+                        </sizing>
+                    </stack-layout>
+
+                    <label id="player-name">
+                        <text>{{player-name}}</text>
+                        <color>#FFFFFF</color>
+                        <shadow>true</shadow>
+                    </label>
+                </children>
+                <gap>5</gap>
+                <padding>
+                    <all>5</all>
+                </padding>
+                <surface>
+                    <panel dark="false"/>
+                </surface>
+                <horizontal-alignment>left</horizontal-alignment>
+                <vertical-alignment>center</vertical-alignment>
+                <sizing>
+                    <horizontal method="fixed">192</horizontal>
+                    <vertical method="content">0</vertical>
+                </sizing>
+            </flow-layout>
+        </template>
         <template name="kit-button">
             <flow-layout direction="horizontal">
                 <children>
@@ -196,6 +298,8 @@
                         <shadow>true</shadow>
                     </label>
                 </children>
+                <cursor-style>hand</cursor-style>
+                <tooltip-text>{{kit-name}}</tooltip-text>
                 <gap>5</gap>
                 <padding>
                     <all>5</all>

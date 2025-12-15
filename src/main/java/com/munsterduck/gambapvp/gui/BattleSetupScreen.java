@@ -3,45 +3,46 @@ package com.munsterduck.gambapvp.gui;
 import com.munsterduck.gambapvp.client.ClientKitCache;
 import com.munsterduck.gambapvp.network.BattleRequestPacket;
 import io.wispforest.owo.ui.base.BaseUIModelScreen;
-import io.wispforest.owo.ui.component.ButtonComponent;
-import io.wispforest.owo.ui.component.Components;
-import io.wispforest.owo.ui.component.ItemComponent;
-import io.wispforest.owo.ui.component.LabelComponent;
+import io.wispforest.owo.ui.component.*;
 import io.wispforest.owo.ui.container.FlowLayout;
-import io.wispforest.owo.ui.container.GridLayout;
-import io.wispforest.owo.ui.core.*;
+import io.wispforest.owo.ui.container.StackLayout;
+import io.wispforest.owo.ui.core.Component;
+import io.wispforest.owo.ui.core.Positioning;
+import io.wispforest.owo.ui.core.Sizing;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.PlayerListEntry;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
+import net.minecraft.client.util.DefaultSkinHelper;
 import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
-import java.util.Map;
+import java.lang.reflect.Array;
+import java.util.*;
 
 import static com.munsterduck.gambapvp.GambaPVP.MOD_ID;
 
-public class NewBattleSetupScreen extends BaseUIModelScreen<FlowLayout> {
+public class BattleSetupScreen extends BaseUIModelScreen<FlowLayout> {
     private int setupStep = 0;
     private String selectedKit = null;
-    private String selectedOpponent = null;
+    private List<String> selectedOpponents = new ArrayList<>();
     private int winsRequired = 3;
     private boolean keepInventory = true;
 
     // Component references
     private FlowLayout rootComponent;
     private LabelComponent titleLabel;
-    private LabelComponent selectedKitLabel;
     private FlowLayout kitSelectionStep;
     private FlowLayout rulesStep;
     private FlowLayout playerSelectionStep;
     private FlowLayout wagerStep;
-    private ButtonComponent keepInventoryButton;
+    private FlowLayout keepInventoryButton;
     private FlowLayout kitGrid;
+    private FlowLayout rulesGrid;
+    private ButtonComponent backButton;
+    private ButtonComponent nextButton;
+    private Map<FlowLayout, Integer> winButtonValues = new HashMap<>();
 
-    public NewBattleSetupScreen() {
+    public BattleSetupScreen() {
         super(FlowLayout.class, DataSource.asset(new Identifier(MOD_ID, "battle_setup")));
     }
 
@@ -50,21 +51,24 @@ public class NewBattleSetupScreen extends BaseUIModelScreen<FlowLayout> {
         this.rootComponent = rootComponent;
 
         titleLabel = rootComponent.childById(LabelComponent.class, "title-label");
-        selectedKitLabel = rootComponent.childById(LabelComponent.class, "selected-kit-label");
 
         kitSelectionStep = rootComponent.childById(FlowLayout.class, "kit-selection-step");
         rulesStep = rootComponent.childById(FlowLayout.class, "rules-step");
         playerSelectionStep = rootComponent.childById(FlowLayout.class, "player-selection-step");
         wagerStep = rootComponent.childById(FlowLayout.class, "wager-step");
         kitGrid = rootComponent.childById(FlowLayout.class, "kit-grid");
+        rulesGrid = rootComponent.childById(FlowLayout.class, "rules-grid");
+        nextButton = rootComponent.childById(ButtonComponent.class, "next-button");
+        backButton = rootComponent.childById(ButtonComponent.class, "back-button");
 
-        rootComponent.childById(ButtonComponent.class, "back-button").onPress(button -> {
-            if (setupStep > 0) {
-                setupStep--;
-                updateStep();
-            } else {
-                this.close();
-            }
+        //Create Back Button
+        backButton.onPress(button -> {
+            lastStep();
+        });
+
+        //Create Next Button
+        nextButton.onPress(button -> {
+            nextStep();
         });
 
         setupKitSelection();
@@ -111,7 +115,6 @@ public class NewBattleSetupScreen extends BaseUIModelScreen<FlowLayout> {
             kitButton.mouseDown().subscribe((mouseX, mouseY, button) -> {
                 if (button == 0) {
                     selectedKit = kitName;
-                    BattleRequestPacket.CHANNEL.clientHandle().send(new BattleRequestPacket.KitSelected(kitName));
                     nextStep();
                     return true;
                 }
@@ -144,61 +147,102 @@ public class NewBattleSetupScreen extends BaseUIModelScreen<FlowLayout> {
     }
 
     private void setupRulesStep(FlowLayout root) {
-        setupWinButton(root, "wins-1-button", 1);
-        setupWinButton(root, "wins-3-button", 3);
-        setupWinButton(root, "wins-5-button", 5);
-        setupWinButton(root, "wins-7-button", 7);
 
-        keepInventoryButton = root.childById(ButtonComponent.class, "keep-inventory-button");
-        keepInventoryButton.onPress(button -> {
-            keepInventory = !keepInventory;
-            updateKeepInventoryButton();
-        });
+        int[] winCons = new int[]{1, 3, 5, 7};
 
-        root.childById(ButtonComponent.class, "rules-next-button").onPress(button -> {
-            nextStep();
+        for (int winCount : winCons) {
+            setupWinButton(winCount);
+        }
+
+        keepInventoryButton = root.childById(FlowLayout.class, "keep-inventory-button");
+        keepInventoryButton.mouseDown().subscribe((mouseX, mouseY, button) -> {
+            if (button == 0) {
+                keepInventory = !keepInventory;
+                updateKeepInventoryButton();
+                return true;
+            }
+            return false;
         });
     }
 
-    private void setupWinButton(FlowLayout root, String id, int wins) {
-        root.childById(ButtonComponent.class, id).onPress(button -> {
-            winsRequired = wins;
-            updateWinButtons();
+    private void setupWinButton(int wins) {
+        FlowLayout winButton = this.model.expandTemplate(
+                FlowLayout.class,
+                "win-button",
+                Map.of(
+                        "wins", String.valueOf(wins)
+                )
+        );
+
+        // Store the win button and value for future reference
+        winButtonValues.put(winButton, wins);
+
+        winButton.mouseDown().subscribe((mouseX, mouseY, button) -> {
+            if (button == 0) {
+                winsRequired = wins;
+                updateWinButtons();
+                return true;
+            }
+            return false;
         });
+
+        rulesGrid.child(winButton);
     }
 
     private void setupPlayerSelection(FlowLayout root) {
         FlowLayout playerList = root.childById(FlowLayout.class, "player-list");
+        selectedOpponents.clear();
 
         if (MinecraftClient.getInstance().getNetworkHandler() != null) {
-            for (PlayerListEntry entry : MinecraftClient.getInstance().getNetworkHandler().getPlayerList()) {
+            Collection<PlayerListEntry> serverPlayerList = MinecraftClient.getInstance().getNetworkHandler().getPlayerList();
+            if (serverPlayerList.size() > 1) {
+                playerList.clearChildren();
+            }
+            for (PlayerListEntry entry : serverPlayerList) {
                 String playerName = entry.getProfile().getName();
 
                 if (playerName.equals(MinecraftClient.getInstance().player.getName().getString())) {
                     continue;
                 }
 
-                ButtonComponent playerButton = Components.button(
-                        Text.literal(playerName),
-                        button -> {
-                            selectedOpponent = playerName;
-                            nextStep();
-                        }
+                FlowLayout playerButton = model.expandTemplate(
+                        FlowLayout.class,
+                        "player-button",
+                        Map.of("player-name", playerName)
                 );
 
-                playerButton.horizontalSizing(Sizing.fixed(200));
-                playerList.child(playerButton);
-            }
-        } else {
-            for (String player : new String[]{"Player1", "Player2", "Player3"}) {
-                ButtonComponent playerButton = Components.button(
-                        Text.literal(player),
-                        button -> {
-                            selectedOpponent = player;
-                            nextStep();
+                // Set skin texture
+                Identifier skin = entry.getSkinTexture();
+                if (skin == null) {
+                    skin = DefaultSkinHelper.getTexture(entry.getProfile().getId());
+                }
+                TextureComponent face = Components.texture(skin, 20, 20, 20, 20, 160, 160);
+                TextureComponent hat = Components.texture(skin, 100, 20, 20, 20, 160, 160);
+                StackLayout faceStack = playerButton.childById(StackLayout.class, "player-face-stack");
+
+                faceStack.clearChildren();
+
+                // Add base face and hat layers
+                faceStack.child(face);
+                faceStack.child(hat);
+
+                // Make clickable
+                playerButton.mouseDown().subscribe((mouseX, mouseY, button) -> {
+                    if (button == 0) {
+                        CheckboxComponent checkbox = playerButton.childById(CheckboxComponent.class, "player-checkbox");
+                        if (selectedOpponents.contains(playerName)) {
+                            selectedOpponents.remove(playerName);
+                            checkbox.checked(false);
+                        } else {
+                            selectedOpponents.add(playerName);
+                            checkbox.checked(true);
                         }
-                );
-                playerButton.horizontalSizing(Sizing.fixed(200));
+                        shouldHideNext();
+                        return true;
+                    }
+                    return false;
+                });
+
                 playerList.child(playerButton);
             }
         }
@@ -216,8 +260,8 @@ public class NewBattleSetupScreen extends BaseUIModelScreen<FlowLayout> {
     }
 
     private void sendBattleRequest() {
-        if (selectedOpponent == null) {
-            System.err.println("No opponent selected!");
+        if (selectedOpponents == null) {
+            System.err.println("No opponent(s) selected!");
             return;
         }
 
@@ -225,7 +269,7 @@ public class NewBattleSetupScreen extends BaseUIModelScreen<FlowLayout> {
 
         BattleRequestPacket.CHANNEL.clientHandle().send(
                 new BattleRequestPacket.BattleRequestSend(
-                        selectedOpponent,
+                        selectedOpponents,
                         kitName,
                         winsRequired,
                         keepInventory
@@ -240,7 +284,6 @@ public class NewBattleSetupScreen extends BaseUIModelScreen<FlowLayout> {
         FlowLayout current = switch (setupStep) {
             case 0 -> kitSelectionStep;
             case 1 -> {
-                updateSelectedKitLabel();
                 updateWinButtons();
                 updateKeepInventoryButton();
                 yield rulesStep;
@@ -250,13 +293,22 @@ public class NewBattleSetupScreen extends BaseUIModelScreen<FlowLayout> {
             default -> kitSelectionStep;
         };
 
+        if (selectedKit == null) {
+            keepInventoryButton.positioning(Positioning.layout());
+        } else {
+            keepInventory = true;
+            keepInventoryButton.positioning(Positioning.absolute(-1000, -1000));
+        }
+
+        shouldHideNext();
+
         contentContainer.child(current);
 
         // Update title
         String title = switch (setupStep) {
             case 0 -> "Select Your Kit";
-            case 1 -> "Battle Rules";
-            case 2 -> "Select Opponent";
+            case 1 -> "Win Conditions";
+            case 2 -> "Select Opponent(s)";
             case 3 -> "Wager Items";
             default -> "Battle Setup";
         };
@@ -268,26 +320,47 @@ public class NewBattleSetupScreen extends BaseUIModelScreen<FlowLayout> {
         updateStep();
     }
 
-    private void updateSelectedKitLabel() {
-        String kitDisplay = selectedKit != null ? selectedKit : "No Kit (Vanilla)";
-        selectedKitLabel.text(Text.literal("Selected: " + kitDisplay));
+    private void lastStep() {
+        if (setupStep > 0) {
+            setupStep--;
+            updateStep();
+        } else {
+            this.close();
+        }
+    }
+
+    private void shouldHideNext() {
+        if (setupStep < 1) {
+            editNextButton(false, false);
+        } else if (setupStep == 2 && selectedOpponents.isEmpty()) {
+            editNextButton(false, true);
+        } else {
+            editNextButton(true, true);
+        }
+    }
+
+    private void editNextButton(boolean isActive, boolean isVisible) {
+        nextButton.active(isActive);
+        nextButton.visible = isVisible;
+        nextButton.horizontalSizing(isVisible ? Sizing.content() : Sizing.fixed(0));
     }
 
     private void updateWinButtons() {
-        updateWinButtonText("wins-1-button", 1);
-        updateWinButtonText("wins-3-button", 3);
-        updateWinButtonText("wins-5-button", 5);
-        updateWinButtonText("wins-7-button", 7);
-    }
+        for (FlowLayout winButton : winButtonValues.keySet()) {
+            CheckboxComponent checkbox = winButton.childById(CheckboxComponent.class, "win-checkbox");
+            int buttonWins = winButtonValues.get(winButton);
 
-    private void updateWinButtonText(String id, int wins) {
-        ButtonComponent button = rulesStep.childById(ButtonComponent.class, id);
-        String label = "First to " + wins + (winsRequired == wins ? " ✓" : "");
-        button.setMessage(Text.literal(label));
+            if (winsRequired == buttonWins) {
+                checkbox.checked(true);
+            } else {
+                checkbox.checked(false);
+            }
+        }
     }
 
     private void updateKeepInventoryButton() {
-        keepInventoryButton.setMessage(Text.literal("Keep Inventory: " + (keepInventory ? "ON" : "OFF")));
+        CheckboxComponent keepInventoryCheckbox = keepInventoryButton.childById(CheckboxComponent.class, "keep-inventory-checkbox");
+        keepInventoryCheckbox.checked(keepInventory);
     }
 
     @Override

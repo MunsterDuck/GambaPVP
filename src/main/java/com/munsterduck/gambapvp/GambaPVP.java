@@ -24,6 +24,6 @@ public class GambaPVP implements ModInitializer {
         LOGGER.info("Initializing GambaPVP mod");
 
         ModRegistries.registerModStuffs();
-        BattleRequestPacket.init();
+        BattleRequestPacket.registerPacketsCommon();
     }
 }

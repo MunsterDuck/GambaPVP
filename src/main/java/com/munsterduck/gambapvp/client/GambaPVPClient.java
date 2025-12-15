@@ -1,6 +1,8 @@
 package com.munsterduck.gambapvp.client;
 
-import com.munsterduck.gambapvp.gui.NewBattleSetupScreen;
+import com.munsterduck.gambapvp.gui.BattleSetupScreen;
+import com.munsterduck.gambapvp.network.BattleRequestPacket;
+import com.munsterduck.gambapvp.network.BattleRequestPacketClient;
 import io.wispforest.owo.ui.component.Components;
 import io.wispforest.owo.ui.container.Containers;
 import io.wispforest.owo.ui.core.*;
@@ -24,12 +26,14 @@ public class GambaPVPClient implements ClientModInitializer {
     public void onInitializeClient() {
         GambaPVP.LOGGER.info("GambaPVP client initialized");
 
+        BattleRequestPacketClient.init();
+
         KeyBindingHelper.registerKeyBinding(TOGGLE_HUD);
         KeyBindingHelper.registerKeyBinding(OPEN_BATTLE);
 
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             while (OPEN_BATTLE.wasPressed()) {
-                client.setScreen(new NewBattleSetupScreen());
+                client.setScreen(new BattleSetupScreen());
             }
             while (TOGGLE_HUD.wasPressed()) {
                 if (Hud.getComponent(HUD_ID) == null) {

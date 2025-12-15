@@ -1,6 +1,7 @@
 package com.munsterduck.gambapvp.gui;
 
 import com.munsterduck.gambapvp.network.BattleRequestPacket;
+import com.munsterduck.gambapvp.network.BattleRequestPacketClient;
 import io.wispforest.owo.ui.base.BaseUIModelScreen;
 import io.wispforest.owo.ui.component.ButtonComponent;
 import io.wispforest.owo.ui.component.LabelComponent;
