@@ -36,6 +36,7 @@
       "fabric-api": "*"
 	},
 	"suggests": {
-		"another-mod": "*"
+		"notches-currency": "*",
+		"location-tooltip": "*"
 	}
 }
