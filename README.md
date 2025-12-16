@@ -8,3 +8,6 @@
 A simple mod for creating a betting on PVP battles. Using the battle podium or commands, players can select from kits (or no kit), how many wins to go to, which arena they should fight in, and then wager currency and items on the outcome!
 
 **ALL RELEASES FOUND ON [MODRINTH.](https://modrinth.com/mod/gambapvp)**
+
+<!-- modrinth_exclude.start -->
+<!-- modrinth_exclude.end -->
