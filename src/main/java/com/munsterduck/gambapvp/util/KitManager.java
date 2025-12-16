@@ -15,7 +15,12 @@ import java.util.List;
 public class KitManager {
 
     public static final SuggestionProvider<ServerCommandSource> KIT_SUGGESTIONS = (context, builder) -> {
-        KitManager.getKitNames(context.getSource().getServer()).forEach(builder::suggest);
+        String remaining = builder.getRemaining().toLowerCase();
+
+        KitManager.getKitNames(context.getSource().getServer()).stream()
+                .filter(kitName -> kitName.toLowerCase().startsWith(remaining))
+                .forEach(builder::suggest);
+
         return builder.buildFuture();
     };
 

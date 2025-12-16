@@ -23,7 +23,7 @@ public class SaveKitCommand {
         dispatcher.register(
                 CommandManager.literal("gkit")
                         .then(CommandManager.literal("save")
-                                .then(CommandManager.argument("kit_name", StringArgumentType.string())
+                                .then(CommandManager.argument("kit_name", StringArgumentType.greedyString())
                                         .executes(SaveKitCommand::run)))
         );
     }
@@ -37,7 +37,12 @@ public class SaveKitCommand {
             return 0;
         }
 
-        String kitName = StringArgumentType.getString(context, "kit_name");
+        String kitName = StringArgumentType.getString(context, "kit_name").trim();
+
+        if (kitName.isBlank()) {
+            context.getSource().sendFeedback(() -> Text.literal("Kit Name must not be blank."), false);
+            return 0;
+        }
 
         // Serialize inventory to NBT
         NbtCompound kitData = new NbtCompound();

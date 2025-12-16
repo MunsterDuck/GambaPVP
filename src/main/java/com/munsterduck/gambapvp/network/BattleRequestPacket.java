@@ -48,11 +48,9 @@ public class BattleRequestPacket {
         });
 
         CHANNEL.registerServerbound(RequestKits.class, (message, access) -> {
-            List<KitInfo> kits = new ArrayList<>();
-
-            for (KitData kit : KitManager.getAllKitsWithIcons(access.player().getServer())) {
-                kits.add(new KitInfo(kit.getName(), kit.getIconItem()));
-            }
+            List<SendKits.KitInfo> kits = KitManager.getAllKitsWithIcons(access.player().getServer()).stream()
+                    .map(kit -> new SendKits.KitInfo(kit.getName(), kit.getIcon(), kit.getItemsList()))
+                    .toList();
 
             CHANNEL.serverHandle(access.player()).send(new SendKits(kits));
         });
@@ -82,7 +80,7 @@ public class BattleRequestPacket {
     // Kit packets
     public record RequestKits() {}
 
-    public record SendKits(List<KitInfo> kits) {}
-
-    public record KitInfo(String name, ItemStack icon) {}
+    public record SendKits(List<KitInfo> kits) {
+        public record KitInfo(String name, ItemStack icon, List<ItemStack> items) {}
+    }
 }

@@ -12,7 +12,11 @@ import io.wispforest.owo.ui.core.Sizing;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.client.util.DefaultSkinHelper;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.registry.Registries;
+import net.minecraft.text.HoverEvent;
+import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
@@ -93,14 +97,15 @@ public class BattleSetupScreen extends BaseUIModelScreen<FlowLayout> {
 
     private void populateKitGrid() {
         kitGrid.clearChildren();
-
         var kits = ClientKitCache.getKits();
 
         // Add each kit using the template
         for (var kit : kits) {
             String kitName = kit.name;
-
             Identifier itemId = Registries.ITEM.getId(kit.icon.getItem());
+            if (kit.icon.getItem() == Items.AIR) {
+                itemId = Registries.ITEM.getId(Items.BARRIER);
+            }
 
             FlowLayout kitButton = this.model.expandTemplate(
                     FlowLayout.class,
@@ -110,6 +115,58 @@ public class BattleSetupScreen extends BaseUIModelScreen<FlowLayout> {
                             "kit-stack", itemId.toString()
                     )
             );
+
+            // Create tooltip with kit contents
+            List<Text> tooltipLines = new ArrayList<>();
+            tooltipLines.add(Text.literal(kitName).styled(style -> style.withColor(0xFFFFFF)));
+
+            if (kit.items.isEmpty()) {
+                tooltipLines.add(Text.literal("Empty kit").styled(style -> style.withColor(0x888888).withItalic(true)));
+            } else {
+                // Group identical items and preserve one stack for rarity color
+                Map<String, ItemStackInfo> itemInfo = new LinkedHashMap<>();
+
+                for (ItemStack stack : kit.items) {
+                    String key = stack.getItem().toString();
+                    if (!itemInfo.containsKey(key)) {
+                        itemInfo.put(key, new ItemStackInfo(stack.copy(), 0));
+                    }
+                    itemInfo.get(key).count += stack.getCount();
+                }
+
+                // Add to tooltip with rarity colors
+                int count = 0;
+                for (Map.Entry<String, ItemStackInfo> entry : itemInfo.entrySet()) {
+                    if (count >= 10) {
+                        tooltipLines.add(Text.literal("... and " + (itemInfo.size() - 10) + " more")
+                                .styled(style -> style.withColor(0x888888).withItalic(true)));
+                        break;
+                    }
+
+                    ItemStack displayStack = entry.getValue().stack;
+                    int totalCount = entry.getValue().count;
+
+                    // Use item's rarity color
+                    int rarityColor = displayStack.getRarity().formatting.getColorValue() != null
+                            ? displayStack.getRarity().formatting.getColorValue()
+                            : 0xAAAAAA;
+
+                    String itemName = displayStack.getName().getString();
+                    String countText = totalCount > 1 ? " ×" + totalCount : "";
+
+                    tooltipLines.add(Text.literal("■ " + itemName + countText).styled(style -> style.withColor(rarityColor)));
+
+                    count++;
+                }
+
+                tooltipLines.add(Text.literal(""));
+                tooltipLines.add(Text.literal("Total: " + itemInfo.size() + " item type" +
+                                (itemInfo.size() == 1 ? "" : "s"))
+                        .styled(style -> style.withColor(0x888888)));
+            }
+
+            // Apply the tooltip
+            kitButton.tooltip(tooltipLines);
 
             // Make clickable
             kitButton.mouseDown().subscribe((mouseX, mouseY, button) -> {
@@ -124,15 +181,20 @@ public class BattleSetupScreen extends BaseUIModelScreen<FlowLayout> {
             kitGrid.child(kitButton);
         }
 
-        // Add "No Kit" option using template
+        // Add "No Kit" option
         FlowLayout noKitButton = this.model.expandTemplate(
-                FlowLayout.class,
-                "kit-button@gambapvp:battle_setup",
-                Map.of(
-                        "kit-name", "No Kit",
-                        "kit-stack", "minecraft:barrier"
-                )
+            FlowLayout.class,
+            "kit-button@gambapvp:battle_setup",
+            Map.of(
+                "kit-name", "No Kit",
+                "kit-stack", "minecraft:barrier"
+            )
         );
+
+        noKitButton.tooltip(List.of(
+                Text.literal("No Kit").styled(style -> style.withColor(0xFFFFFF)),
+                Text.literal("Use your own Inventory!").styled(style -> style.withColor(0xAAAAAA))
+        ));
 
         noKitButton.mouseDown().subscribe((mouseX, mouseY, button) -> {
             if (button == 0) {
@@ -144,6 +206,17 @@ public class BattleSetupScreen extends BaseUIModelScreen<FlowLayout> {
         });
 
         kitGrid.child(noKitButton);
+    }
+
+    // Helper class to store stack and count
+    private static class ItemStackInfo {
+        ItemStack stack;
+        int count;
+
+        ItemStackInfo(ItemStack stack, int count) {
+            this.stack = stack;
+            this.count = count;
+        }
     }
 
     private void setupRulesStep(FlowLayout root) {
@@ -167,11 +240,11 @@ public class BattleSetupScreen extends BaseUIModelScreen<FlowLayout> {
 
     private void setupWinButton(int wins) {
         FlowLayout winButton = this.model.expandTemplate(
-                FlowLayout.class,
-                "win-button",
-                Map.of(
-                        "wins", String.valueOf(wins)
-                )
+            FlowLayout.class,
+            "win-button",
+            Map.of(
+                    "wins", String.valueOf(wins)
+            )
         );
 
         // Store the win button and value for future reference
@@ -293,13 +366,6 @@ public class BattleSetupScreen extends BaseUIModelScreen<FlowLayout> {
             default -> kitSelectionStep;
         };
 
-        if (selectedKit == null) {
-            keepInventoryButton.positioning(Positioning.layout());
-        } else {
-            keepInventory = true;
-            keepInventoryButton.positioning(Positioning.absolute(-1000, -1000));
-        }
-
         shouldHideNext();
 
         contentContainer.child(current);
@@ -313,6 +379,14 @@ public class BattleSetupScreen extends BaseUIModelScreen<FlowLayout> {
             default -> "Battle Setup";
         };
         titleLabel.text(Text.literal(title));
+
+        if (selectedKit == null) {
+            keepInventoryButton.positioning(Positioning.layout());
+        } else {
+            //Kit Inventories should always keep
+            keepInventory = true;
+            keepInventoryButton.positioning(Positioning.absolute(0, -500));
+        }
     }
 
     private void nextStep() {

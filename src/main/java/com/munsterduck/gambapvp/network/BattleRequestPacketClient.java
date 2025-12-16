@@ -28,9 +28,8 @@ public class BattleRequestPacketClient {
                 (message, access) -> {
                     ClientKitCache.clear();
                     message.kits().forEach(
-                            kit -> ClientKitCache.addKit(kit.name(), kit.icon())
+                            kit -> ClientKitCache.addKit(kit.name(), kit.icon(), kit.items())
                     );
-
                     if (MinecraftClient.getInstance().currentScreen
                             instanceof BattleSetupScreen screen) {
                         screen.refreshKits();

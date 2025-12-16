@@ -40,7 +40,7 @@
                                                     <all>2</all>
                                                 </padding>
                                                 <sizing>
-                                                    <vertical method="fixed">139</vertical>
+                                                    <vertical method="fixed">138</vertical>
                                                     <horizontal method="fixed">200</horizontal>
                                                 </sizing>
                                             </scroll>
@@ -72,7 +72,7 @@
                                             <flow-layout direction="horizontal" id="keep-inventory-button">
                                                 <children>
                                                     <checkbox id="keep-inventory-checkbox">
-                                                        <active>true</active>
+                                                        <active>false</active>
                                                         <sizing>
                                                             <horizontal method="fixed">20</horizontal>
                                                             <vertical method="fixed">20</vertical>
@@ -299,7 +299,6 @@
                     </label>
                 </children>
                 <cursor-style>hand</cursor-style>
-                <tooltip-text>{{kit-name}}</tooltip-text>
                 <gap>5</gap>
                 <padding>
                     <all>5</all>

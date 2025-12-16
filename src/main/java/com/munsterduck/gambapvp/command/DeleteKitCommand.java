@@ -18,27 +18,25 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 
 public class DeleteKitCommand {
-
-    // Suggestion provider for kit names
-    public static final SuggestionProvider<ServerCommandSource> KIT_SUGGESTIONS = (context, builder) -> {
-        KitManager.getKitNames(context.getSource().getServer()).forEach(builder::suggest);
-        return builder.buildFuture();
-    };
-
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher,
                                 CommandRegistryAccess commandRegistryAccess,
                                 CommandManager.RegistrationEnvironment registrationEnvironment) {
         dispatcher.register(
                 CommandManager.literal("gkit")
                     .then(CommandManager.literal("delete")
-                    .then(CommandManager.argument("kit_name", StringArgumentType.string())
-                    .suggests(KIT_SUGGESTIONS)
+                    .then(CommandManager.argument("kit_name", StringArgumentType.greedyString())
+                    .suggests(KitManager.KIT_SUGGESTIONS)
                     .executes(DeleteKitCommand::run)))
         );
     }
 
     public static int run(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        String kitName = StringArgumentType.getString(context, "kit_name");
+        String kitName = StringArgumentType.getString(context, "kit_name").trim();
+
+        if (kitName.isBlank()) {
+            context.getSource().sendFeedback(() -> Text.literal("Kit Name must not be blank."), false);
+            return 0;
+        }
 
         boolean success = KitManager.deleteKit(context.getSource().getServer(), kitName);
 

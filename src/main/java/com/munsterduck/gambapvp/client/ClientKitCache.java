@@ -11,10 +11,12 @@ public class ClientKitCache {
     public static class KitEntry {
         public final String name;
         public final ItemStack icon;
+        public final List<ItemStack> items;
 
-        public KitEntry(String name, ItemStack icon) {
+        public KitEntry(String name, ItemStack icon, List<ItemStack> items) {
             this.name = name;
             this.icon = icon;
+            this.items = items != null ? items : new ArrayList<>();
         }
     }
 
@@ -22,8 +24,8 @@ public class ClientKitCache {
         cachedKits.clear();
     }
 
-    public static void addKit(String name, ItemStack icon) {
-        cachedKits.add(new KitEntry(name, icon));
+    public static void addKit(String name, ItemStack icon, List<ItemStack> items) {
+        cachedKits.add(new KitEntry(name, icon, items));
     }
 
     public static List<KitEntry> getKits() {

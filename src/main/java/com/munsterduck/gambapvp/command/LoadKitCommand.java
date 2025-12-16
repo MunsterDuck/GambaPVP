@@ -25,7 +25,7 @@ public class LoadKitCommand {
         dispatcher.register(
                 CommandManager.literal("gkit")
                     .then(CommandManager.literal("load")
-                    .then(CommandManager.argument("kit_name", StringArgumentType.string())
+                    .then(CommandManager.argument("kit_name", StringArgumentType.greedyString())
                     .suggests(KitManager.KIT_SUGGESTIONS)
                     .executes(LoadKitCommand::run)))
         );
@@ -41,7 +41,12 @@ public class LoadKitCommand {
             return 0;
         }
 
-        String kitName = StringArgumentType.getString(context, "kit_name");
+        String kitName = StringArgumentType.getString(context, "kit_name").trim();
+
+        if (kitName.isBlank()) {
+            context.getSource().sendFeedback(() -> Text.literal("Kit Name must not be blank."), false);
+            return 0;
+        }
 
         // Load kit from server storage
         NbtCompound kitData = KitManager.loadKit(context.getSource().getServer(), kitName);
