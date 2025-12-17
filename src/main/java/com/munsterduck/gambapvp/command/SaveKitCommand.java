@@ -21,10 +21,10 @@ public class SaveKitCommand {
                                 CommandRegistryAccess commandRegistryAccess,
                                 CommandManager.RegistrationEnvironment registrationEnvironment) {
         dispatcher.register(
-                CommandManager.literal("gkit")
-                        .then(CommandManager.literal("save")
-                                .then(CommandManager.argument("kit_name", StringArgumentType.greedyString())
-                                        .executes(SaveKitCommand::run)))
+            CommandManager.literal("gkit")
+                .then(CommandManager.literal("save")
+                    .then(CommandManager.argument("kit_name", StringArgumentType.greedyString())
+                        .executes(SaveKitCommand::run)))
         );
     }
 
@@ -41,6 +41,20 @@ public class SaveKitCommand {
 
         if (kitName.isBlank()) {
             context.getSource().sendFeedback(() -> Text.literal("Kit Name must not be blank."), false);
+            return 0;
+        }
+
+        String normalizedName = kitName.toLowerCase().replaceAll("\\s+", "");
+
+        if (normalizedName.equals("nokit") ||
+                normalizedName.equals("vanilla") ||
+                normalizedName.equals("none") ||
+                normalizedName.equals("default") ||
+                normalizedName.isEmpty()) {
+            context.getSource().sendFeedback(() ->
+                            Text.literal("Invalid kit name! Cannot use reserved names like 'No Kit', 'Vanilla', 'None', or 'Default'.")
+                                    .styled(style -> style.withColor(0xFF5555)),
+                    false);
             return 0;
         }
 

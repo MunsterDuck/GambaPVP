@@ -2,6 +2,7 @@ package com.munsterduck.gambapvp.network;
 
 import com.munsterduck.gambapvp.util.KitData;
 import com.munsterduck.gambapvp.util.KitManager;
+import com.munsterduck.gambapvp.util.PendingDuelManager;
 import io.wispforest.owo.network.OwoNetChannel;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -32,16 +33,31 @@ public class BattleRequestPacket {
 
             for (String player : message.selectedOpponents()) {
                 ServerPlayerEntity serverPlayer = sender.server.getPlayerManager().getPlayer(player);
-                targets.add(serverPlayer);
-            };
+                if (serverPlayer != null) {
+                    targets.add(serverPlayer);
+                }
+            }
 
             if (!targets.isEmpty()) {
                 for (ServerPlayerEntity target : targets) {
-                    CHANNEL.serverHandle(target).send(new BattleRequest(
+                    // Create and store the request
+                    PendingDuelManager.DuelRequest request = new PendingDuelManager.DuelRequest(
+                            sender.getUuid(),
                             sender.getName().getString(),
                             message.kitName(),
                             message.winsRequired(),
                             message.keepInventory()
+                    );
+
+                    PendingDuelManager.addRequest(target.getUuid(), request);
+
+                    // Send to target with request ID
+                    CHANNEL.serverHandle(target).send(new BattleRequest(
+                            sender.getName().getString(),
+                            message.kitName(),
+                            message.winsRequired(),
+                            message.keepInventory(),
+                            request.requestId.toString()
                     ));
                 }
             }
@@ -69,7 +85,8 @@ public class BattleRequestPacket {
             String senderName,
             String kitName,
             int winsRequired,
-            boolean keepInventory
+            boolean keepInventory,
+            String requestId
     ) {}
 
     public record BattleResponse(

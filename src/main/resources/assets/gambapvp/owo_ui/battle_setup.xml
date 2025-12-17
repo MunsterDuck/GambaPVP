@@ -51,24 +51,28 @@
                                     <!-- Rules Setup Step (Step 1) -->
                                     <flow-layout direction="vertical" id="rules-step">
                                         <children>
-                                            <flow-layout id="rules-grid" direction="vertical">
-                                                <children>
-                                                    <!-- Win Conditions Go Here -->
-                                                </children>
-                                                <horizontal-alignment>center</horizontal-alignment>
-                                                <sizing>
-                                                    <horizontal method="content">0</horizontal>
-                                                    <vertical method="content">0</vertical>
-                                                </sizing>
-                                                <gap>1</gap>
+                                            <scroll direction="vertical" id="rules-list-scroll">
+                                                <flow-layout id="rules-grid" direction="vertical">
+                                                    <children>
+                                                        <!-- Win Conditions Go Here -->
+                                                    </children>
+                                                    <sizing>
+                                                        <horizontal method="content">0</horizontal>
+                                                        <vertical method="content">0</vertical>
+                                                    </sizing>
+                                                    <gap>1</gap>
+                                                </flow-layout>
                                                 <surface>
                                                     <outline>#000000</outline>
                                                 </surface>
                                                 <padding>
                                                     <all>2</all>
                                                 </padding>
-                                            </flow-layout>
-
+                                                <sizing>
+                                                    <vertical method="fixed">127</vertical>
+                                                    <horizontal method="fixed">200</horizontal>
+                                                </sizing>
+                                            </scroll>
                                             <flow-layout direction="horizontal" id="keep-inventory-button">
                                                 <children>
                                                     <checkbox id="keep-inventory-checkbox">
@@ -128,6 +132,7 @@
                                                         </flow-layout>
                                                         <!-- Players will be added dynamically -->
                                                     </children>
+                                                    <gap>1</gap>
                                                     <horizontal-alignment>center</horizontal-alignment>
                                                 </flow-layout>
                                                 <surface>
@@ -137,7 +142,7 @@
                                                     <all>2</all>
                                                 </padding>
                                                 <sizing>
-                                                    <vertical method="fixed">150</vertical>
+                                                    <vertical method="fixed">127</vertical>
                                                     <horizontal method="fixed">200</horizontal>
                                                 </sizing>
                                             </scroll>

@@ -12,7 +12,7 @@ public class ModRegistries {
         registerCommands();
     }
     private static void registerCommands() {
-        CommandRegistrationCallback.EVENT.register(GBattleCommand::register);
+        CommandRegistrationCallback.EVENT.register(GDuelCommand::register);
         CommandRegistrationCallback.EVENT.register(SaveKitCommand::register);
         CommandRegistrationCallback.EVENT.register(LoadKitCommand::register);
         CommandRegistrationCallback.EVENT.register(LoadNormalPlayerInventoryCommand::register);

@@ -338,7 +338,7 @@ public class BattleSetupScreen extends BaseUIModelScreen<FlowLayout> {
             return;
         }
 
-        String kitName = selectedKit != null ? selectedKit : "vanilla";
+        String kitName = selectedKit != null ? selectedKit : "";
 
         BattleRequestPacket.CHANNEL.clientHandle().send(
                 new BattleRequestPacket.BattleRequestSend(
@@ -424,11 +424,7 @@ public class BattleSetupScreen extends BaseUIModelScreen<FlowLayout> {
             CheckboxComponent checkbox = winButton.childById(CheckboxComponent.class, "win-checkbox");
             int buttonWins = winButtonValues.get(winButton);
 
-            if (winsRequired == buttonWins) {
-                checkbox.checked(true);
-            } else {
-                checkbox.checked(false);
-            }
+            checkbox.checked(winsRequired == buttonWins);
         }
     }
 

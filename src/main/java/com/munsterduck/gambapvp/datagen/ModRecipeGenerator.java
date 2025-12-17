@@ -30,10 +30,9 @@ public class ModRecipeGenerator extends FabricRecipeProvider {
                 .input('D', Items.DIAMOND_SWORD)
 
                 .criterion("has_logs", conditionsFromTag(ItemTags.LOGS))
-                .criterion(hasItem(Items.IRON_BLOCK), conditionsFromItem(Items.IRON_BLOCK))
-                .criterion(hasItem(Items.DIAMOND_SWORD), conditionsFromItem(Items.DIAMOND_SWORD))
+                .criterion("has_iron_block", conditionsFromItem(Items.IRON_BLOCK))
+                .criterion("has_diamond_sword", conditionsFromItem(Items.DIAMOND_SWORD))
 
-                //TODO: Never unlocks Recipe
                 .offerTo(consumer, new Identifier(getRecipeName(ModBlocks.DUELING_PODIUM)));
     }
 }
