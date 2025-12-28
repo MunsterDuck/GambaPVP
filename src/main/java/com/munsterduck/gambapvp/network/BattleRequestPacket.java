@@ -78,7 +78,8 @@ public class BattleRequestPacket {
             List<String> selectedOpponents,
             String kitName,
             int winsRequired,
-            boolean keepInventory
+            boolean keepInventory,
+            String arenaId
     ) {}
 
     public record BattleRequest(

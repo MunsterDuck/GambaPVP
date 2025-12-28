@@ -6,21 +6,22 @@ import io.wispforest.owo.ui.base.BaseUIModelScreen;
 import io.wispforest.owo.ui.component.*;
 import io.wispforest.owo.ui.container.FlowLayout;
 import io.wispforest.owo.ui.container.StackLayout;
-import io.wispforest.owo.ui.core.Component;
 import io.wispforest.owo.ui.core.Positioning;
 import io.wispforest.owo.ui.core.Sizing;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.client.util.DefaultSkinHelper;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.registry.Registries;
-import net.minecraft.text.HoverEvent;
-import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
 
 import java.lang.reflect.Array;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.*;
 
 import static com.munsterduck.gambapvp.GambaPVP.MOD_ID;
@@ -31,17 +32,23 @@ public class BattleSetupScreen extends BaseUIModelScreen<FlowLayout> {
     private List<String> selectedOpponents = new ArrayList<>();
     private int winsRequired = 3;
     private boolean keepInventory = true;
+    private String selectedArena = null;
+
+    // Check if Location Tooltip mod is loaded
+    private static final boolean LOCATION_TOOLTIP_LOADED = FabricLoader.getInstance().isModLoaded("locationtooltip");
 
     // Component references
     private FlowLayout rootComponent;
     private LabelComponent titleLabel;
     private FlowLayout kitSelectionStep;
     private FlowLayout rulesStep;
+    private FlowLayout arenaSelectionStep;
     private FlowLayout playerSelectionStep;
     private FlowLayout wagerStep;
     private FlowLayout keepInventoryButton;
     private FlowLayout kitGrid;
     private FlowLayout rulesGrid;
+    private FlowLayout arenaGrid;
     private ButtonComponent backButton;
     private ButtonComponent nextButton;
     private Map<FlowLayout, Integer> winButtonValues = new HashMap<>();
@@ -65,6 +72,12 @@ public class BattleSetupScreen extends BaseUIModelScreen<FlowLayout> {
         nextButton = rootComponent.childById(ButtonComponent.class, "next-button");
         backButton = rootComponent.childById(ButtonComponent.class, "back-button");
 
+        // Initialize arena selection if mod is loaded
+        if (LOCATION_TOOLTIP_LOADED) {
+            arenaSelectionStep = rootComponent.childById(FlowLayout.class, "arena-selection-step");
+            arenaGrid = rootComponent.childById(FlowLayout.class, "arena-grid");
+        }
+
         //Create Back Button
         backButton.onPress(button -> {
             lastStep();
@@ -77,6 +90,9 @@ public class BattleSetupScreen extends BaseUIModelScreen<FlowLayout> {
 
         setupKitSelection();
         setupRulesStep(rootComponent);
+        if (LOCATION_TOOLTIP_LOADED) {
+            setupArenaSelection();
+        }
         setupPlayerSelection(rootComponent);
         setupWagerStep(rootComponent);
 
@@ -220,7 +236,6 @@ public class BattleSetupScreen extends BaseUIModelScreen<FlowLayout> {
     }
 
     private void setupRulesStep(FlowLayout root) {
-
         int[] winCons = new int[]{1, 3, 5, 7};
 
         for (int winCount : winCons) {
@@ -243,7 +258,7 @@ public class BattleSetupScreen extends BaseUIModelScreen<FlowLayout> {
             FlowLayout.class,
             "win-button",
             Map.of(
-                    "wins", String.valueOf(wins)
+                "wins", String.valueOf(wins)
             )
         );
 
@@ -260,6 +275,92 @@ public class BattleSetupScreen extends BaseUIModelScreen<FlowLayout> {
         });
 
         rulesGrid.child(winButton);
+    }
+
+    private void setupArenaSelection() {
+        arenaGrid.clearChildren();
+        System.out.println("[GambaPVP] Setting up arena selection...");
+        System.out.println("[GambaPVP] Location Tooltip loaded: " + LOCATION_TOOLTIP_LOADED);
+        // Request region cache and poll for updates
+        requestLocationTooltipArenas();
+        // Populate arena list initially
+        populateArenaList();
+    }
+
+    /**
+     * Populates the arena grid with arenas from the cache
+     */
+    private void populateArenaList() {
+        arenaGrid.clearChildren();
+
+        // Get arenas directly from Location Tooltip
+        List<ArenaInfo> arenas = getArenasFromLocationTooltipCache();
+
+        System.out.println("[GambaPVP] Found " + arenas.size() + " arenas");
+        for (int i = 0; i < arenas.size(); i++) {
+            ArenaInfo arena = arenas.get(i);
+            System.out.println("[GambaPVP] Arena " + i + ": id=" + arena.id + ", name=" + arena.name +
+                    ", coords=" + arena.coordinates + ", dim=" + arena.dimension);
+        }
+
+        // Add each arena as a button
+        for (ArenaInfo arena : arenas) {
+            FlowLayout arenaButton = this.model.expandTemplate(
+                    FlowLayout.class,
+                    "arena-button",
+                    Map.of(
+                            "arena-name", arena.name,
+                            "arena-coords", arena.coordinates
+                    )
+            );
+
+            // Add tooltip with full details
+            List<Text> tooltipLines = new ArrayList<>();
+            tooltipLines.add(Text.literal(arena.name).styled(style -> style.withColor(0xFFFFFF)));
+            tooltipLines.add(Text.literal(arena.coordinates).styled(style -> style.withColor(0xAAAAAA)));
+            tooltipLines.add(Text.literal("Dimension: " + getDimensionName(arena.dimension)).styled(style -> style.withColor(0x888888)));
+
+            arenaButton.tooltip(tooltipLines);
+
+            // Make clickable
+            final String arenaId = arena.id;
+            arenaButton.mouseDown().subscribe((mouseX, mouseY, button) -> {
+                if (button == 0) {
+                    selectedArena = arenaId;
+                    nextStep();
+                    return true;
+                }
+                return false;
+            });
+
+            arenaGrid.child(arenaButton);
+        }
+
+        // Add "Any Location" option
+        FlowLayout anyLocationButton = this.model.expandTemplate(
+                FlowLayout.class,
+                "arena-button",
+                Map.of(
+                        "arena-name", "Any Location",
+                        "arena-coords", "Current Location"
+                )
+        );
+
+        anyLocationButton.tooltip(List.of(
+                Text.literal("Any Location").styled(style -> style.withColor(0xFFFFFF)),
+                Text.literal("Battle at current location").styled(style -> style.withColor(0xAAAAAA))
+        ));
+
+        anyLocationButton.mouseDown().subscribe((mouseX, mouseY, button) -> {
+            if (button == 0) {
+                selectedArena = null;
+                nextStep();
+                return true;
+            }
+            return false;
+        });
+
+        arenaGrid.child(anyLocationButton);
     }
 
     private void setupPlayerSelection(FlowLayout root) {
@@ -333,19 +434,21 @@ public class BattleSetupScreen extends BaseUIModelScreen<FlowLayout> {
     }
 
     private void sendBattleRequest() {
-        if (selectedOpponents == null) {
+        if (selectedOpponents == null || selectedOpponents.isEmpty()) {
             System.err.println("No opponent(s) selected!");
             return;
         }
 
         String kitName = selectedKit != null ? selectedKit : "";
+        String arenaId = selectedArena != null ? selectedArena : "";
 
         BattleRequestPacket.CHANNEL.clientHandle().send(
                 new BattleRequestPacket.BattleRequestSend(
                         selectedOpponents,
                         kitName,
                         winsRequired,
-                        keepInventory
+                        keepInventory,
+                        arenaId
                 )
         );
     }
@@ -354,6 +457,7 @@ public class BattleSetupScreen extends BaseUIModelScreen<FlowLayout> {
         FlowLayout contentContainer = rootComponent.childById(FlowLayout.class, "content-container");
         contentContainer.clearChildren();
 
+        // Adjust step numbers based on whether arena selection is included
         FlowLayout current = switch (setupStep) {
             case 0 -> kitSelectionStep;
             case 1 -> {
@@ -361,8 +465,9 @@ public class BattleSetupScreen extends BaseUIModelScreen<FlowLayout> {
                 updateKeepInventoryButton();
                 yield rulesStep;
             }
-            case 2 -> playerSelectionStep;
-            case 3 -> wagerStep;
+            case 2 -> LOCATION_TOOLTIP_LOADED ? arenaSelectionStep : playerSelectionStep;
+            case 3 -> LOCATION_TOOLTIP_LOADED ? playerSelectionStep : wagerStep;
+            case 4 -> wagerStep;
             default -> kitSelectionStep;
         };
 
@@ -374,8 +479,9 @@ public class BattleSetupScreen extends BaseUIModelScreen<FlowLayout> {
         String title = switch (setupStep) {
             case 0 -> "Select Your Kit";
             case 1 -> "Win Conditions";
-            case 2 -> "Select Opponent(s)";
-            case 3 -> "Wager Items";
+            case 2 -> LOCATION_TOOLTIP_LOADED ? "Select Arena" : "Select Opponent(s)";
+            case 3 -> LOCATION_TOOLTIP_LOADED ? "Select Opponent(s)" : "Wager Items";
+            case 4 -> "Wager Items";
             default -> "Battle Setup";
         };
         titleLabel.text(Text.literal(title));
@@ -406,11 +512,15 @@ public class BattleSetupScreen extends BaseUIModelScreen<FlowLayout> {
     private void shouldHideNext() {
         if (setupStep < 1) {
             editNextButton(false, false);
-        } else if (setupStep == 2 && selectedOpponents.isEmpty()) {
+        } else if (getPlayerSelectionStep() == setupStep && selectedOpponents.isEmpty()) {
             editNextButton(false, true);
         } else {
             editNextButton(true, true);
         }
+    }
+
+    private int getPlayerSelectionStep() {
+        return LOCATION_TOOLTIP_LOADED ? 3 : 2;
     }
 
     private void editNextButton(boolean isActive, boolean isVisible) {
@@ -436,5 +546,193 @@ public class BattleSetupScreen extends BaseUIModelScreen<FlowLayout> {
     @Override
     public boolean shouldPause() {
         return false;
+    }
+
+    /**
+     * Other Helpers
+     */
+
+    private String getDimensionName(Identifier dim) {
+        String path = dim.getPath();
+        return switch (path) {
+            case "overworld" -> "Overworld";
+            case "the_nether" -> "Nether";
+            case "the_end" -> "End";
+            default -> path.substring(0, 1).toUpperCase() + path.substring(1);
+        };
+    }
+
+    /**
+     * Retrieves arena/location data from Location Tooltip mod's AdminClientCache
+     */
+    private List<ArenaInfo> getArenasFromLocationTooltipCache() {
+        List<ArenaInfo> arenas = new ArrayList<>();
+
+        System.out.println("[GambaPVP] Attempting to load arenas from Location Tooltip...");
+
+        try {
+            // Access AdminClientCache.get()
+            Class<?> cacheClass = Class.forName("com.fugginbeenus.locationtooltip.client.AdminClientCache");
+
+            Method getMethod = cacheClass.getMethod("get");
+
+            Object rowsObj = getMethod.invoke(null);
+
+            if (rowsObj == null) {
+                System.out.println("[GambaPVP] AdminClientCache.get() returned null - cache may be empty");
+                return arenas;
+            }
+
+            if (!rowsObj.getClass().isArray()) {
+                System.out.println("[GambaPVP] Result is not an array, type: " + rowsObj.getClass().getName());
+                return arenas;
+            }
+
+            int length = Array.getLength(rowsObj);
+
+            for (int i = 0; i < length; i++) {
+                Object row = Array.get(rowsObj, i);
+
+                try {
+                    // AdminClientCache.Row has: id, name, dim, a, b
+                    Class<?> rowClass = row.getClass();
+
+                    // List all fields for debugging
+                    Field idField = rowClass.getField("id");
+                    Field nameField = rowClass.getField("name");
+                    Field dimField = rowClass.getField("dim");
+                    Field aField = rowClass.getField("a");
+                    Field bField = rowClass.getField("b");
+
+                    String id = (String) idField.get(row);
+                    String name = (String) nameField.get(row);
+                    Identifier dim = (Identifier) dimField.get(row);
+                    BlockPos a = (BlockPos) aField.get(row);
+                    BlockPos b = (BlockPos) bField.get(row);
+
+                    // Calculate center position
+                    int centerX = (a.getX() + b.getX()) / 2;
+                    int centerY = (a.getY() + b.getY()) / 2;
+                    int centerZ = (a.getZ() + b.getZ()) / 2;
+
+                    ArenaInfo arenaInfo = new ArenaInfo(id, name, centerX, centerY, centerZ, dim);
+                    arenas.add(arenaInfo);
+                    System.out.println("[GambaPVP] Successfully created ArenaInfo for: " + name);
+                } catch (Exception e) {
+                    System.err.println("[GambaPVP] Failed to extract location row " + i + " data: " + e.getMessage());
+                    e.printStackTrace();
+                }
+            }
+        } catch (ClassNotFoundException e) {
+            System.out.println("[GambaPVP] AdminClientCache not found - LocationTooltip may not be loaded properly");
+            System.out.println("[GambaPVP] Error: " + e.getMessage());
+        } catch (NoSuchMethodException e) {
+            System.err.println("[GambaPVP] AdminClientCache.get() method not found: " + e.getMessage());
+            e.printStackTrace();
+        } catch (Exception e) {
+            System.err.println("[GambaPVP] Error accessing LocationTooltip data: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        System.out.println("[GambaPVP] Finished loading arenas, total: " + arenas.size());
+        return arenas;
+    }
+
+    /**
+     * Requests the arena list from Location Tooltip mod
+     */
+    private void requestLocationTooltipArenas() {
+        try {
+            System.out.println("[GambaPVP] Requesting ALL arenas from Location Tooltip...");
+
+            // Register a one-time listener for when the cache is updated
+            registerCacheUpdateListener();
+
+            // Call LTPacketsClient.requestAdminList with -1 to request ALL regions
+            Class<?> ltPacketsClientClass = Class.forName("com.fugginbeenus.locationtooltip.net.client.LTPacketsClient");
+            Method requestMethod = ltPacketsClientClass.getMethod("requestAllAdminList");
+
+            // Use -1 to request all arenas (not just nearby)
+            requestMethod.invoke(null);
+            System.out.println("[GambaPVP] Successfully sent request for all arenas");
+
+        } catch (ClassNotFoundException e) {
+            System.err.println("[GambaPVP] LTPacketsClient class not found: " + e.getMessage());
+        } catch (NoSuchMethodException e) {
+            System.err.println("[GambaPVP] requestAdminList method not found: " + e.getMessage());
+        } catch (Exception e) {
+            System.err.println("[GambaPVP] Error requesting arena list: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Registers a listener to refresh the arena list when the cache is updated.
+     * Uses a polling approach since AdminClientCache doesn't have built-in callbacks.
+     */
+    private void registerCacheUpdateListener() {
+        // Create a background task that checks for cache updates
+        new Thread(() -> {
+            int attempts = 0;
+            int maxAttempts = 50; // 5 seconds max wait (50 * 100ms)
+            int lastCacheSize = 0;
+
+            try {
+                Class<?> cacheClass = Class.forName("com.fugginbeenus.locationtooltip.client.AdminClientCache");
+                Method getMethod = cacheClass.getMethod("get");
+
+                while (attempts < maxAttempts) {
+                    Thread.sleep(100); // Check every 100ms
+
+                    Object rowsObj = getMethod.invoke(null);
+                    int currentSize = (rowsObj != null && rowsObj.getClass().isArray())
+                            ? Array.getLength(rowsObj)
+                            : 0;
+
+                    // If cache size changed and is non-zero, refresh the UI
+                    if (currentSize > 0 && currentSize != lastCacheSize) {
+                        System.out.println("[GambaPVP] Cache updated with " + currentSize + " regions, refreshing UI");
+
+                        // Schedule UI update on the client thread
+                        MinecraftClient.getInstance().execute(() -> {
+                            populateArenaList();
+                        });
+
+                        break; // Done
+                    }
+
+                    lastCacheSize = currentSize;
+                    attempts++;
+                }
+
+                if (attempts >= maxAttempts) {
+                    System.err.println("[GambaPVP] Timeout waiting for arena cache to update");
+                }
+
+            } catch (Exception e) {
+                System.err.println("[GambaPVP] Error in cache update listener: " + e.getMessage());
+            }
+        }, "GambaPVP-ArenaCache-Listener").start();
+    }
+
+    /**
+     * Helper class to store arena information from Location Tooltip
+     */
+    private static class ArenaInfo {
+        final String id;
+        final String name;
+        final int x, y, z;
+        final Identifier dimension;
+        final String coordinates;
+
+        ArenaInfo(String id, String name, int x, int y, int z, Identifier dimension) {
+            this.id = id;
+            this.name = name;
+            this.x = x;
+            this.y = y;
+            this.z = z;
+            this.dimension = dimension;
+            this.coordinates = String.format("(%d, %d, %d)", x, y, z);
+        }
     }
 }

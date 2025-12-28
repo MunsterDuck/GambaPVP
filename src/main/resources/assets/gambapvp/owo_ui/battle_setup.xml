@@ -6,207 +6,237 @@
             <children>
                 <!-- Main content panel -->
                 <flow-layout direction="vertical" id="main-panel">
-                        <children>
-                            <!-- Title label -->
-                            <label id="title-label">
-                                <text>Battle Setup</text>
-                                <color>#FFFFFF</color>
-                                <shadow>true</shadow>
-                            </label>
+                    <children>
+                        <!-- Title label -->
+                        <label id="title-label">
+                            <text>Battle Setup</text>
+                            <color>#FFFFFF</color>
+                            <shadow>true</shadow>
+                        </label>
 
-                            <!-- Content container that changes per step -->
-                            <flow-layout direction="vertical" id="content-container">
-                                <children>
-                                    <!-- Kit Selection Step (Step 0) -->
-                                    <flow-layout direction="vertical" id="kit-selection-step">
-                                        <children>
-                                            <!-- Scrollable kit grid -->
-                                            <scroll direction="vertical" id="kit-scroll">
-                                                <flow-layout id="kit-grid" direction="vertical">
-                                                    <children>
-                                                        <!-- Kits will be added dynamically -->
-                                                    </children>
-                                                    <horizontal-alignment>center</horizontal-alignment>
-                                                    <sizing>
-                                                        <horizontal method="content">0</horizontal>
-                                                        <vertical method="content">0</vertical>
-                                                    </sizing>
-                                                    <gap>1</gap>
-                                                </flow-layout>
-                                                <surface>
-                                                    <outline>#000000</outline>
-                                                </surface>
-                                                <padding>
-                                                    <all>2</all>
-                                                </padding>
-                                                <sizing>
-                                                    <vertical method="fixed">138</vertical>
-                                                    <horizontal method="fixed">200</horizontal>
-                                                </sizing>
-                                            </scroll>
-                                        </children>
-                                        <horizontal-alignment>center</horizontal-alignment>
-                                    </flow-layout>
-
-                                    <!-- Rules Setup Step (Step 1) -->
-                                    <flow-layout direction="vertical" id="rules-step">
-                                        <children>
-                                            <scroll direction="vertical" id="rules-list-scroll">
-                                                <flow-layout id="rules-grid" direction="vertical">
-                                                    <children>
-                                                        <!-- Win Conditions Go Here -->
-                                                    </children>
-                                                    <sizing>
-                                                        <horizontal method="content">0</horizontal>
-                                                        <vertical method="content">0</vertical>
-                                                    </sizing>
-                                                    <gap>1</gap>
-                                                </flow-layout>
-                                                <surface>
-                                                    <outline>#000000</outline>
-                                                </surface>
-                                                <padding>
-                                                    <all>2</all>
-                                                </padding>
-                                                <sizing>
-                                                    <vertical method="fixed">127</vertical>
-                                                    <horizontal method="fixed">200</horizontal>
-                                                </sizing>
-                                            </scroll>
-                                            <flow-layout direction="horizontal" id="keep-inventory-button">
+                        <!-- Content container that changes per step -->
+                        <flow-layout direction="vertical" id="content-container">
+                            <children>
+                                <!-- Kit Selection Step (Step 0) -->
+                                <flow-layout direction="vertical" id="kit-selection-step">
+                                    <children>
+                                        <!-- Scrollable kit grid -->
+                                        <scroll direction="vertical" id="kit-scroll">
+                                            <flow-layout id="kit-grid" direction="vertical">
                                                 <children>
-                                                    <checkbox id="keep-inventory-checkbox">
-                                                        <active>false</active>
-                                                        <sizing>
-                                                            <horizontal method="fixed">20</horizontal>
-                                                            <vertical method="fixed">20</vertical>
-                                                        </sizing>
-                                                    </checkbox>
-                                                    <label id="keep-inventory-label">
-                                                        <text>Keep Inventory</text>
-                                                        <color>#FFFFFF</color>
-                                                        <shadow>true</shadow>
-                                                    </label>
+                                                    <!-- Kits will be added dynamically -->
                                                 </children>
-                                                <gap>5</gap>
-                                                <padding>
-                                                    <all>5</all>
-                                                </padding>
-                                                <surface>
-                                                    <panel dark="false"/>
-                                                </surface>
-                                                <horizontal-alignment>left</horizontal-alignment>
-                                                <vertical-alignment>center</vertical-alignment>
+                                                <horizontal-alignment>center</horizontal-alignment>
                                                 <sizing>
-                                                    <horizontal method="fixed">192</horizontal>
+                                                    <horizontal method="content">0</horizontal>
                                                     <vertical method="content">0</vertical>
                                                 </sizing>
+                                                <gap>1</gap>
                                             </flow-layout>
-                                        </children>
-                                        <gap>5</gap>
-                                        <horizontal-alignment>center</horizontal-alignment>
-                                    </flow-layout>
+                                            <surface>
+                                                <outline>#000000</outline>
+                                            </surface>
+                                            <padding>
+                                                <all>2</all>
+                                            </padding>
+                                            <sizing>
+                                                <vertical method="fixed">138</vertical>
+                                                <horizontal method="fixed">200</horizontal>
+                                            </sizing>
+                                        </scroll>
+                                    </children>
+                                    <horizontal-alignment>center</horizontal-alignment>
+                                </flow-layout>
 
-                                    <!-- Player Selection Step (Step 2) -->
-                                    <flow-layout direction="vertical" id="player-selection-step">
-                                        <children>
-                                            <scroll direction="vertical" id="player-list-scroll">
-                                                <flow-layout direction="vertical" id="player-list">
-                                                    <children>
-                                                        <flow-layout direction="vertical">
-                                                            <children>
-                                                                <label>
-                                                                    <text>No Players Found</text>
-                                                                    <color>#FFFFFF</color>
-                                                                    <shadow>true</shadow>
-                                                                </label>
-                                                            </children>
-                                                            <padding>
-                                                                <vertical>10</vertical>
-                                                            </padding>
-                                                            <horizontal-alignment>center</horizontal-alignment>
-                                                            <sizing>
-                                                                <vertical method="content">0</vertical>
-                                                                <horizontal method="fixed">200</horizontal>
-                                                            </sizing>
-                                                        </flow-layout>
-                                                        <!-- Players will be added dynamically -->
-                                                    </children>
-                                                    <gap>1</gap>
-                                                    <horizontal-alignment>center</horizontal-alignment>
-                                                </flow-layout>
-                                                <surface>
-                                                    <outline>#000000</outline>
-                                                </surface>
-                                                <padding>
-                                                    <all>2</all>
-                                                </padding>
+                                <!-- Rules Setup Step (Step 1) -->
+                                <flow-layout direction="vertical" id="rules-step">
+                                    <children>
+                                        <scroll direction="vertical" id="rules-list-scroll">
+                                            <flow-layout id="rules-grid" direction="vertical">
+                                                <children>
+                                                    <!-- Win Conditions Go Here -->
+                                                </children>
                                                 <sizing>
-                                                    <vertical method="fixed">127</vertical>
-                                                    <horizontal method="fixed">200</horizontal>
+                                                    <horizontal method="content">0</horizontal>
+                                                    <vertical method="content">0</vertical>
                                                 </sizing>
-                                            </scroll>
-                                        </children>
-                                        <gap>5</gap>
-                                        <horizontal-alignment>center</horizontal-alignment>
-                                    </flow-layout>
+                                                <gap>1</gap>
+                                            </flow-layout>
+                                            <surface>
+                                                <outline>#000000</outline>
+                                            </surface>
+                                            <padding>
+                                                <all>2</all>
+                                            </padding>
+                                            <sizing>
+                                                <vertical method="fixed">127</vertical>
+                                                <horizontal method="fixed">200</horizontal>
+                                            </sizing>
+                                        </scroll>
+                                        <flow-layout direction="horizontal" id="keep-inventory-button">
+                                            <children>
+                                                <checkbox id="keep-inventory-checkbox">
+                                                    <active>false</active>
+                                                    <sizing>
+                                                        <horizontal method="fixed">20</horizontal>
+                                                        <vertical method="fixed">20</vertical>
+                                                    </sizing>
+                                                </checkbox>
+                                                <label id="keep-inventory-label">
+                                                    <text>Keep Inventory</text>
+                                                    <color>#FFFFFF</color>
+                                                    <shadow>true</shadow>
+                                                </label>
+                                            </children>
+                                            <gap>5</gap>
+                                            <padding>
+                                                <all>5</all>
+                                            </padding>
+                                            <surface>
+                                                <panel dark="false"/>
+                                            </surface>
+                                            <horizontal-alignment>left</horizontal-alignment>
+                                            <vertical-alignment>center</vertical-alignment>
+                                            <sizing>
+                                                <horizontal method="fixed">192</horizontal>
+                                                <vertical method="content">0</vertical>
+                                            </sizing>
+                                        </flow-layout>
+                                    </children>
+                                    <gap>5</gap>
+                                    <horizontal-alignment>center</horizontal-alignment>
+                                </flow-layout>
 
-                                    <!-- Wager Step (Step 3) -->
-                                    <flow-layout direction="vertical" id="wager-step">
-                                        <children>
-                                            <label>
-                                                <text>Add wager items (optional)</text>
-                                                <color>#FFFF00</color>
-                                            </label>
+                                <!-- Arena Selection Step (Step 2, conditional) -->
+                                <flow-layout direction="vertical" id="arena-selection-step">
+                                    <children>
+                                        <scroll direction="vertical" id="arena-scroll">
+                                            <flow-layout id="arena-grid" direction="vertical">
+                                                <children>
+                                                    <!-- Arenas will be added dynamically -->
+                                                </children>
+                                                <horizontal-alignment>center</horizontal-alignment>
+                                                <sizing>
+                                                    <horizontal method="content">0</horizontal>
+                                                    <vertical method="content">0</vertical>
+                                                </sizing>
+                                                <gap>1</gap>
+                                            </flow-layout>
+                                            <surface>
+                                                <outline>#000000</outline>
+                                            </surface>
+                                            <padding>
+                                                <all>2</all>
+                                            </padding>
+                                            <sizing>
+                                                <vertical method="fixed">138</vertical>
+                                                <horizontal method="fixed">200</horizontal>
+                                            </sizing>
+                                        </scroll>
+                                    </children>
+                                    <horizontal-alignment>center</horizontal-alignment>
+                                </flow-layout>
 
-                                            <button id="add-wager-button">
-                                                <text>Add Wager Items (Coming Soon)</text>
-                                            </button>
+                                <!-- Player Selection Step (Step 2/3) -->
+                                <flow-layout direction="vertical" id="player-selection-step">
+                                    <children>
+                                        <scroll direction="vertical" id="player-list-scroll">
+                                            <flow-layout direction="vertical" id="player-list">
+                                                <children>
+                                                    <flow-layout direction="vertical">
+                                                        <children>
+                                                            <label>
+                                                                <text>No Players Found</text>
+                                                                <color>#FFFFFF</color>
+                                                                <shadow>true</shadow>
+                                                            </label>
+                                                        </children>
+                                                        <padding>
+                                                            <vertical>10</vertical>
+                                                        </padding>
+                                                        <horizontal-alignment>center</horizontal-alignment>
+                                                        <sizing>
+                                                            <vertical method="content">0</vertical>
+                                                            <horizontal method="fixed">200</horizontal>
+                                                        </sizing>
+                                                    </flow-layout>
+                                                    <!-- Players will be added dynamically -->
+                                                </children>
+                                                <gap>1</gap>
+                                                <horizontal-alignment>center</horizontal-alignment>
+                                            </flow-layout>
+                                            <surface>
+                                                <outline>#000000</outline>
+                                            </surface>
+                                            <padding>
+                                                <all>2</all>
+                                            </padding>
+                                            <sizing>
+                                                <vertical method="fixed">127</vertical>
+                                                <horizontal method="fixed">200</horizontal>
+                                            </sizing>
+                                        </scroll>
+                                    </children>
+                                    <gap>5</gap>
+                                    <horizontal-alignment>center</horizontal-alignment>
+                                </flow-layout>
 
-                                            <button id="send-request-button">
-                                                <text>Send Battle Request</text>
-                                            </button>
-                                        </children>
-                                        <horizontal-alignment>center</horizontal-alignment>
-                                    </flow-layout>
-                                </children>
-                                <horizontal-alignment>center</horizontal-alignment>
-                            </flow-layout>
+                                <!-- Wager Step (Step 3/4) -->
+                                <flow-layout direction="vertical" id="wager-step">
+                                    <children>
+                                        <label>
+                                            <text>Add wager items (optional)</text>
+                                            <color>#FFFF00</color>
+                                        </label>
 
-                            <flow-layout direction="horizontal">
-                                <children>
-                                    <button id="back-button">
-                                        <text>Back</text>
-                                        <renderer>
-                                            <flat color="dark-gray" hovered-color="gray" disabled-color="black"/>
-                                        </renderer>
-                                    </button>
+                                        <button id="add-wager-button">
+                                            <text>Add Wager Items (Coming Soon)</text>
+                                        </button>
 
-                                    <button id="next-button">
-                                        <text>Next</text>
-                                        <active>false</active>
-                                        <renderer>
-                                            <flat color="dark-gray" hovered-color="gray" disabled-color="black"/>
-                                        </renderer>
-                                    </button>
-                                </children>
-                                <gap>4</gap>
-                            </flow-layout>
-                        </children>
-                        <gap>5</gap>
-                        <padding>
-                            <all>10</all>
-                        </padding>
-                        <horizontal-alignment>center</horizontal-alignment>
-                        <vertical-alignment>center</vertical-alignment>
-                        <surface>
-                            <panel dark="true"/>
-                        </surface>
-                        <sizing>
-                            <horizontal method="content">0</horizontal>
-                            <vertical method="content">0</vertical>
-                        </sizing>
-                    </flow-layout>
+                                        <button id="send-request-button">
+                                            <text>Send Battle Request</text>
+                                        </button>
+                                    </children>
+                                    <horizontal-alignment>center</horizontal-alignment>
+                                </flow-layout>
+                            </children>
+                            <horizontal-alignment>center</horizontal-alignment>
+                        </flow-layout>
+
+                        <flow-layout direction="horizontal">
+                            <children>
+                                <button id="back-button">
+                                    <text>Back</text>
+                                    <renderer>
+                                        <flat color="dark-gray" hovered-color="gray" disabled-color="black"/>
+                                    </renderer>
+                                </button>
+
+                                <button id="next-button">
+                                    <text>Next</text>
+                                    <active>false</active>
+                                    <renderer>
+                                        <flat color="dark-gray" hovered-color="gray" disabled-color="black"/>
+                                    </renderer>
+                                </button>
+                            </children>
+                            <gap>4</gap>
+                        </flow-layout>
+                    </children>
+                    <gap>5</gap>
+                    <padding>
+                        <all>10</all>
+                    </padding>
+                    <horizontal-alignment>center</horizontal-alignment>
+                    <vertical-alignment>center</vertical-alignment>
+                    <surface>
+                        <panel dark="true"/>
+                    </surface>
+                    <sizing>
+                        <horizontal method="content">0</horizontal>
+                        <vertical method="content">0</vertical>
+                    </sizing>
+                </flow-layout>
             </children>
             <gap>5</gap>
             <vertical-alignment>center</vertical-alignment>
@@ -302,6 +332,48 @@
                         <color>#FFFFFF</color>
                         <shadow>true</shadow>
                     </label>
+                </children>
+                <cursor-style>hand</cursor-style>
+                <gap>5</gap>
+                <padding>
+                    <all>5</all>
+                </padding>
+                <surface>
+                    <panel dark="false"/>
+                </surface>
+                <horizontal-alignment>left</horizontal-alignment>
+                <vertical-alignment>center</vertical-alignment>
+                <sizing>
+                    <horizontal method="fixed">192</horizontal>
+                    <vertical method="content">0</vertical>
+                </sizing>
+            </flow-layout>
+        </template>
+        <template name="arena-button">
+            <flow-layout direction="horizontal">
+                <children>
+                    <item id="arena-icon">
+                        <stack>minecraft:compass</stack>
+                    </item>
+                    <flow-layout direction="vertical">
+                        <children>
+                            <label id="arena-name-label">
+                                <text>{{arena-name}}</text>
+                                <color>#FFFFFF</color>
+                                <shadow>true</shadow>
+                            </label>
+                            <label id="arena-coords-label">
+                                <text>{{arena-coords}}</text>
+                                <color>#AAAAAA</color>
+                                <shadow>true</shadow>
+                            </label>
+                        </children>
+                        <gap>2</gap>
+                        <sizing>
+                            <horizontal method="content">0</horizontal>
+                            <vertical method="content">0</vertical>
+                        </sizing>
+                    </flow-layout>
                 </children>
                 <cursor-style>hand</cursor-style>
                 <gap>5</gap>
