@@ -1,6 +1,5 @@
-<owo-ui xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/wisp-forest/owo-lib/1.20/owo-ui.xsd">
-    <components>
+<owo-ui xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/wisp-forest/owo-lib/1.20/owo-ui.xsd">
+<components>
         <!-- Root container -->
         <flow-layout direction="vertical" id="root">
             <children>
@@ -157,7 +156,7 @@
                                                         <horizontal-alignment>center</horizontal-alignment>
                                                         <sizing>
                                                             <vertical method="content">0</vertical>
-                                                            <horizontal method="fixed">200</horizontal>
+                                                            <horizontal method="fixed">196</horizontal>
                                                         </sizing>
                                                     </flow-layout>
                                                     <!-- Players will be added dynamically -->
@@ -381,7 +380,7 @@
                     <all>5</all>
                 </padding>
                 <surface>
-                    <panel dark="false"/>
+                    <tiled texture-width="30" texture-height="30">gambapvp:arena/dirt.png</tiled>
                 </surface>
                 <horizontal-alignment>left</horizontal-alignment>
                 <vertical-alignment>center</vertical-alignment>

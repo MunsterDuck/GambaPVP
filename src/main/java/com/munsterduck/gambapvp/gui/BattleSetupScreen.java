@@ -287,9 +287,7 @@ public class BattleSetupScreen extends BaseUIModelScreen<FlowLayout> {
         populateArenaList();
     }
 
-    /**
-     * Populates the arena grid with arenas from the cache
-     */
+    //Populates the arena grid with arenas from the cache
     private void populateArenaList() {
         arenaGrid.clearChildren();
 
@@ -300,18 +298,26 @@ public class BattleSetupScreen extends BaseUIModelScreen<FlowLayout> {
         for (int i = 0; i < arenas.size(); i++) {
             ArenaInfo arena = arenas.get(i);
             System.out.println("[GambaPVP] Arena " + i + ": id=" + arena.id + ", name=" + arena.name +
-                    ", coords=" + arena.coordinates + ", dim=" + arena.dimension);
+                    ", coords=" + arena.coordinates + ", dim=" + arena.dimension + ", allowPvP=" + arena.allowPvP);
         }
 
         // Add each arena as a button
         for (ArenaInfo arena : arenas) {
+            String path = arena.dimension.getPath();
+            Identifier arena_background = switch (path) {
+                case "the_nether" -> Identifier.of("minecraft", "block/netherrack");
+                case "the_end"    -> Identifier.of("minecraft", "block/end_stone");
+                default           -> Identifier.of("minecraft", "block/dirt");
+            };
+
             FlowLayout arenaButton = this.model.expandTemplate(
-                    FlowLayout.class,
-                    "arena-button",
-                    Map.of(
-                            "arena-name", arena.name,
-                            "arena-coords", arena.coordinates
-                    )
+                FlowLayout.class,
+                "arena-button",
+                Map.of(
+                    "arena-name", arena.name,
+                    "arena-coords", arena.coordinates,
+                    "arena-background", arena_background.toString()
+                )
             );
 
             // Add tooltip with full details
@@ -338,12 +344,13 @@ public class BattleSetupScreen extends BaseUIModelScreen<FlowLayout> {
 
         // Add "Any Location" option
         FlowLayout anyLocationButton = this.model.expandTemplate(
-                FlowLayout.class,
-                "arena-button",
-                Map.of(
-                        "arena-name", "Any Location",
-                        "arena-coords", "Current Location"
-                )
+            FlowLayout.class,
+            "arena-button",
+            Map.of(
+                "arena-name", "Any Location",
+                "arena-coords", "Current Location",
+                "arena-background", "minecraft:block/dirt"
+            )
         );
 
         anyLocationButton.tooltip(List.of(
@@ -548,9 +555,7 @@ public class BattleSetupScreen extends BaseUIModelScreen<FlowLayout> {
         return false;
     }
 
-    /**
-     * Other Helpers
-     */
+    // Other Helpers
 
     private String getDimensionName(Identifier dim) {
         String path = dim.getPath();
@@ -562,9 +567,7 @@ public class BattleSetupScreen extends BaseUIModelScreen<FlowLayout> {
         };
     }
 
-    /**
-     * Retrieves arena/location data from Location Tooltip mod's AdminClientCache
-     */
+    // Retrieves arena/location data from Location Tooltip mod's AdminClientCache
     private List<ArenaInfo> getArenasFromLocationTooltipCache() {
         List<ArenaInfo> arenas = new ArrayList<>();
 
@@ -594,7 +597,7 @@ public class BattleSetupScreen extends BaseUIModelScreen<FlowLayout> {
                 Object row = Array.get(rowsObj, i);
 
                 try {
-                    // AdminClientCache.Row has: id, name, dim, a, b
+                    // AdminClientCache.Row has: id, name, dim, a, b, allowPvP
                     Class<?> rowClass = row.getClass();
 
                     // List all fields for debugging
@@ -603,21 +606,25 @@ public class BattleSetupScreen extends BaseUIModelScreen<FlowLayout> {
                     Field dimField = rowClass.getField("dim");
                     Field aField = rowClass.getField("a");
                     Field bField = rowClass.getField("b");
+                    Field pvpField = rowClass.getField("allowPvP");
 
                     String id = (String) idField.get(row);
                     String name = (String) nameField.get(row);
                     Identifier dim = (Identifier) dimField.get(row);
                     BlockPos a = (BlockPos) aField.get(row);
                     BlockPos b = (BlockPos) bField.get(row);
+                    boolean allowPvP = Boolean.TRUE.equals(pvpField.get(row));
 
                     // Calculate center position
                     int centerX = (a.getX() + b.getX()) / 2;
                     int centerY = (a.getY() + b.getY()) / 2;
                     int centerZ = (a.getZ() + b.getZ()) / 2;
 
-                    ArenaInfo arenaInfo = new ArenaInfo(id, name, centerX, centerY, centerZ, dim);
-                    arenas.add(arenaInfo);
-                    System.out.println("[GambaPVP] Successfully created ArenaInfo for: " + name);
+                    ArenaInfo arenaInfo = new ArenaInfo(id, name, centerX, centerY, centerZ, dim, allowPvP);
+
+                    if (allowPvP) {
+                        arenas.add(arenaInfo);
+                    }
                 } catch (Exception e) {
                     System.err.println("[GambaPVP] Failed to extract location row " + i + " data: " + e.getMessage());
                     e.printStackTrace();
@@ -638,9 +645,7 @@ public class BattleSetupScreen extends BaseUIModelScreen<FlowLayout> {
         return arenas;
     }
 
-    /**
-     * Requests the arena list from Location Tooltip mod
-     */
+    // Requests the arena list from Location Tooltip mod
     private void requestLocationTooltipArenas() {
         try {
             System.out.println("[GambaPVP] Requesting ALL arenas from Location Tooltip...");
@@ -666,10 +671,7 @@ public class BattleSetupScreen extends BaseUIModelScreen<FlowLayout> {
         }
     }
 
-    /**
-     * Registers a listener to refresh the arena list when the cache is updated.
-     * Uses a polling approach since AdminClientCache doesn't have built-in callbacks.
-     */
+    // Registers a listener to refresh the arena list when the cache is updated. Uses a polling approach since AdminClientCache doesn't have built-in callbacks.
     private void registerCacheUpdateListener() {
         // Create a background task that checks for cache updates
         new Thread(() -> {
@@ -715,17 +717,16 @@ public class BattleSetupScreen extends BaseUIModelScreen<FlowLayout> {
         }, "GambaPVP-ArenaCache-Listener").start();
     }
 
-    /**
-     * Helper class to store arena information from Location Tooltip
-     */
+    // Helper class to store arena information from Location Tooltip
     private static class ArenaInfo {
         final String id;
         final String name;
         final int x, y, z;
         final Identifier dimension;
         final String coordinates;
+        final boolean allowPvP;
 
-        ArenaInfo(String id, String name, int x, int y, int z, Identifier dimension) {
+        ArenaInfo(String id, String name, int x, int y, int z, Identifier dimension, boolean allowPvP) {
             this.id = id;
             this.name = name;
             this.x = x;
@@ -733,6 +734,7 @@ public class BattleSetupScreen extends BaseUIModelScreen<FlowLayout> {
             this.z = z;
             this.dimension = dimension;
             this.coordinates = String.format("(%d, %d, %d)", x, y, z);
+            this.allowPvP = allowPvP;
         }
     }
 }
