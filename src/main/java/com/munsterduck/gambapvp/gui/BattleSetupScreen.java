@@ -304,10 +304,17 @@ public class BattleSetupScreen extends BaseUIModelScreen<FlowLayout> {
         // Add each arena as a button
         for (ArenaInfo arena : arenas) {
             String path = arena.dimension.getPath();
+
+            Identifier arena_icon = switch (path) {
+                case "the_nether" -> Identifier.of("minecraft", "warped_nylium");
+                case "the_end"    -> Identifier.of("minecraft", "obsidian");
+                default           -> Identifier.of("minecraft", "grass_block");
+            };
+
             Identifier arena_background = switch (path) {
-                case "the_nether" -> Identifier.of("minecraft", "block/netherrack");
-                case "the_end"    -> Identifier.of("minecraft", "block/end_stone");
-                default           -> Identifier.of("minecraft", "block/dirt");
+                case "the_nether" -> Identifier.of("minecraft", "textures/block/netherrack.png");
+                case "the_end"    -> Identifier.of("minecraft", "textures/block/end_stone.png");
+                default           -> Identifier.of("minecraft", "textures/block/dirt.png");
             };
 
             FlowLayout arenaButton = this.model.expandTemplate(
@@ -316,7 +323,8 @@ public class BattleSetupScreen extends BaseUIModelScreen<FlowLayout> {
                 Map.of(
                     "arena-name", arena.name,
                     "arena-coords", arena.coordinates,
-                    "arena-background", arena_background.toString()
+                    "arena-background", arena_background.toString(),
+                    "arena-icon", arena_icon.toString()
                 )
             );
 
@@ -349,7 +357,8 @@ public class BattleSetupScreen extends BaseUIModelScreen<FlowLayout> {
             Map.of(
                 "arena-name", "Any Location",
                 "arena-coords", "Current Location",
-                "arena-background", "minecraft:block/dirt"
+                "arena-background", "minecraft:textures/block/dirt.png",
+                "arena-icon", "minecraft:grass_block"
             )
         );
 

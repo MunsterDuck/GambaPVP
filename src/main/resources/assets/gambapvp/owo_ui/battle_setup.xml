@@ -352,7 +352,7 @@
             <flow-layout direction="horizontal">
                 <children>
                     <item id="arena-icon">
-                        <stack>minecraft:compass</stack>
+                        <stack>{{arena-icon}}</stack>
                     </item>
                     <flow-layout direction="vertical">
                         <children>
@@ -380,7 +380,8 @@
                     <all>5</all>
                 </padding>
                 <surface>
-                    <tiled texture-width="30" texture-height="30">gambapvp:arena/dirt.png</tiled>
+                    <tiled texture-width="30" texture-height="30">{{arena-background}}</tiled>
+                    <vanilla-translucent/>
                 </surface>
                 <horizontal-alignment>left</horizontal-alignment>
                 <vertical-alignment>center</vertical-alignment>
