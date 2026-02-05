@@ -33,6 +33,10 @@ public class BattleSetupScreen extends BaseUIModelScreen<FlowLayout> {
     private int winsRequired = 3;
     private boolean keepInventory = true;
     private String selectedArena = null;
+    private double selectedArenaX = 0, selectedArenaY = 0, selectedArenaZ = 0;
+    private float selectedArenaYaw = 0, selectedArenaPitch = 0;
+    private String selectedArenaDimension = "";
+    private com.munsterduck.gambapvp.battle.WagerData playerWager = new com.munsterduck.gambapvp.battle.WagerData();
 
     // Check if Location Tooltip mod is loaded
     private static final boolean LOCATION_TOOLTIP_LOADED = FabricLoader.getInstance().isModLoaded("locationtooltip");
@@ -338,9 +342,17 @@ public class BattleSetupScreen extends BaseUIModelScreen<FlowLayout> {
 
             // Make clickable
             final String arenaId = arena.id;
+            final int ax = arena.x, ay = arena.y, az = arena.z;
+            final String adim = arena.dimension.toString();
             arenaButton.mouseDown().subscribe((mouseX, mouseY, button) -> {
                 if (button == 0) {
                     selectedArena = arenaId;
+                    selectedArenaX = ax;
+                    selectedArenaY = ay;
+                    selectedArenaZ = az;
+                    selectedArenaYaw = 0;
+                    selectedArenaPitch = 0;
+                    selectedArenaDimension = adim;
                     nextStep();
                     return true;
                 }
@@ -370,6 +382,12 @@ public class BattleSetupScreen extends BaseUIModelScreen<FlowLayout> {
         anyLocationButton.mouseDown().subscribe((mouseX, mouseY, button) -> {
             if (button == 0) {
                 selectedArena = null;
+                selectedArenaX = 0;
+                selectedArenaY = 0;
+                selectedArenaZ = 0;
+                selectedArenaYaw = 0;
+                selectedArenaPitch = 0;
+                selectedArenaDimension = "";
                 nextStep();
                 return true;
             }
@@ -439,34 +457,95 @@ public class BattleSetupScreen extends BaseUIModelScreen<FlowLayout> {
     }
 
     private void setupWagerStep(FlowLayout root) {
-        root.childById(ButtonComponent.class, "add-wager-button").onPress(button -> {
-            // TODO: Open wager item selection
-        });
+        // The wager step in OWO UI is now just a placeholder
+        // The actual wager screen opens automatically when transitioning to this step
+    }
 
-        root.childById(ButtonComponent.class, "send-request-button").onPress(button -> {
-            sendBattleRequest();
-            this.close();
-        });
+    /**
+     * Opens the wager inventory screen directly.
+     * Called when transitioning to the wager step.
+     */
+    private void openWagerScreen() {
+        if (selectedOpponents.isEmpty()) {
+            if (client != null && client.player != null) {
+                client.player.sendMessage(
+                    Text.literal("Please select an opponent first!").styled(style -> style.withColor(0xFF5555)),
+                    false
+                );
+            }
+            return;
+        }
+
+        String opponentName = selectedOpponents.get(0);
+
+        WagerInventoryScreen wagerScreen = new WagerInventoryScreen(
+            opponentName,
+            (wagerData) -> {
+                // Callback when Done is clicked - store wager and send request
+                playerWager = wagerData;
+                System.out.println("[GambaPVP] Wager set: " + playerWager);
+
+                // Send the battle request
+                sendBattleRequest();
+
+                // Close the screen entirely
+                MinecraftClient.getInstance().setScreen(null);
+            },
+            () -> {
+                // Callback when Back is clicked - return to player selection
+                MinecraftClient.getInstance().setScreen(this);
+                // Go back one step to player selection
+                setupStep = getPlayerSelectionStep();
+                updateStep();
+            }
+        );
+
+        MinecraftClient.getInstance().setScreen(wagerScreen);
     }
 
     private void sendBattleRequest() {
+        System.out.println("[GambaPVP] sendBattleRequest() called");
+        System.out.println("[GambaPVP] Selected opponents: " + selectedOpponents);
+        System.out.println("[GambaPVP] Wager: " + playerWager);
+
         if (selectedOpponents == null || selectedOpponents.isEmpty()) {
-            System.err.println("No opponent(s) selected!");
+            System.err.println("[GambaPVP] No opponent(s) selected!");
             return;
         }
 
         String kitName = selectedKit != null ? selectedKit : "";
         String arenaId = selectedArena != null ? selectedArena : "";
 
+        System.out.println("[GambaPVP] Sending battle request packet to opponents: " + selectedOpponents);
+
+        // Send battle request with wager data and arena coordinates
         BattleRequestPacket.CHANNEL.clientHandle().send(
                 new BattleRequestPacket.BattleRequestSend(
                         selectedOpponents,
                         kitName,
                         winsRequired,
                         keepInventory,
-                        arenaId
+                        arenaId,
+                        selectedArenaX,
+                        selectedArenaY,
+                        selectedArenaZ,
+                        selectedArenaYaw,
+                        selectedArenaPitch,
+                        selectedArenaDimension,
+                        playerWager.toNbt()
                 )
         );
+
+        // Notify the user that the request was sent
+        if (MinecraftClient.getInstance().player != null) {
+            String opponentList = String.join(", ", selectedOpponents);
+            MinecraftClient.getInstance().player.sendMessage(
+                Text.literal("Battle request sent to: " + opponentList).styled(style -> style.withColor(0x55FF55)),
+                false
+            );
+        }
+
+        System.out.println("[GambaPVP] Battle request packet sent!");
     }
 
     private void updateStep() {
@@ -513,6 +592,14 @@ public class BattleSetupScreen extends BaseUIModelScreen<FlowLayout> {
 
     private void nextStep() {
         setupStep++;
+
+        // Check if we've reached the wager step - open wager screen directly
+        int wagerStepNum = LOCATION_TOOLTIP_LOADED ? 4 : 3;
+        if (setupStep == wagerStepNum) {
+            openWagerScreen();
+            return;
+        }
+
         updateStep();
     }
 

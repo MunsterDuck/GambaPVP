@@ -4,15 +4,18 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import com.munsterduck.gambapvp.battle.BattleManager;
+import com.munsterduck.gambapvp.battle.*;
 import com.munsterduck.gambapvp.network.BattleRequestPacket;
 import com.munsterduck.gambapvp.util.PendingDuelManager;
 import net.minecraft.command.CommandRegistryAccess;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 public class GDuelCommand {
@@ -48,6 +51,7 @@ public class GDuelCommand {
         ServerPlayerEntity player = context.getSource().getPlayer();
         String senderName = StringArgumentType.getString(context, "player");
         String requestIdStr = StringArgumentType.getString(context, "requestId");
+        MinecraftServer server = context.getSource().getServer();
 
         UUID requestId;
         try {
@@ -55,6 +59,13 @@ public class GDuelCommand {
         } catch (IllegalArgumentException e) {
             player.sendMessage(Text.literal("Invalid request!").styled(style ->
                     style.withColor(0xFF5555)), false);
+            return 0;
+        }
+
+        // Check if player is already in a battle
+        if (BattleManager.isInBattle(player.getUuid())) {
+            player.sendMessage(Text.literal("You are already in a battle!")
+                    .styled(style -> style.withColor(0xFF5555)), false);
             return 0;
         }
 
@@ -67,7 +78,7 @@ public class GDuelCommand {
             return 0;
         }
 
-        ServerPlayerEntity sender = context.getSource().getServer().getPlayerManager().getPlayer(senderName);
+        ServerPlayerEntity sender = server.getPlayerManager().getPlayer(senderName);
 
         if (sender == null) {
             player.sendMessage(Text.literal("Player " + senderName + " is not online!")
@@ -76,16 +87,45 @@ public class GDuelCommand {
             return 0;
         }
 
-        // Remove the request so it can't be accepted/declined again
-        PendingDuelManager.removeRequest(player.getUuid(), requestId);
+        // Check if there's already a pending session for this request
+        PendingBattleSession existingSession = PendingBattleManager.getSessionByRequest(requestId);
 
-        player.sendMessage(Text.literal("✓ You accepted the duel request from " + senderName)
-                .styled(style -> style.withColor(0x55FF55)), false);
+        if (existingSession != null) {
+            // Multi-player request - add this player's acceptance
+            PendingBattleManager.SessionResult result = PendingBattleManager.processAccept(
+                    player.getUuid(), requestId, server);
 
-        sender.sendMessage(Text.literal(player.getName().getString() + " accepted your duel request!")
-                .styled(style -> style.withColor(0x55FF55)), false);
+            switch (result) {
+                case READY_TO_START -> {
+                    player.sendMessage(Text.literal("✓ You accepted the duel request!")
+                            .styled(style -> style.withColor(0x55FF55)), false);
+                    BattleStarter.startBattle(existingSession, server);
+                    PendingBattleManager.removeSession(existingSession);
+                }
+                case WAITING -> {
+                    player.sendMessage(Text.literal("✓ You accepted the duel request! Waiting for others...")
+                            .styled(style -> style.withColor(0x55FF55)), false);
+                }
+                case NOT_FOUND, INVALID -> {
+                    player.sendMessage(Text.literal("This request is no longer valid!")
+                            .styled(style -> style.withColor(0xFF5555)), false);
+                }
+            }
+        } else {
+            // First acceptance - check if this is a 1v1 or multi-player duel
+            // For now, treat as 1v1 direct start
+            // Remove the request so it can't be accepted/declined again
+            PendingDuelManager.removeRequest(player.getUuid(), requestId);
 
-        // TODO: Start the actual duel/battle with request.kitName, request.winsRequired, etc.
+            player.sendMessage(Text.literal("✓ You accepted the duel request from " + senderName)
+                    .styled(style -> style.withColor(0x55FF55)), false);
+
+            sender.sendMessage(Text.literal(player.getName().getString() + " accepted your duel request!")
+                    .styled(style -> style.withColor(0x55FF55)), false);
+
+            // Start the battle directly for 1v1
+            BattleStarter.startBattleDirect(sender.getUuid(), player.getUuid(), request, server);
+        }
 
         return 1;
     }
@@ -94,6 +134,7 @@ public class GDuelCommand {
         ServerPlayerEntity player = context.getSource().getPlayer();
         String senderName = StringArgumentType.getString(context, "player");
         String requestIdStr = StringArgumentType.getString(context, "requestId");
+        MinecraftServer server = context.getSource().getServer();
 
         UUID requestId;
         try {
@@ -113,17 +154,44 @@ public class GDuelCommand {
             return 0;
         }
 
-        ServerPlayerEntity sender = context.getSource().getServer().getPlayerManager().getPlayer(senderName);
+        // Check if there's a pending session
+        PendingBattleSession existingSession = PendingBattleManager.getSessionByRequest(requestId);
 
-        // Remove the request so it can't be accepted/declined again
-        PendingDuelManager.removeRequest(player.getUuid(), requestId);
+        if (existingSession != null) {
+            // Multi-player request - process decline
+            PendingBattleManager.SessionResult result = PendingBattleManager.processDecline(
+                    player.getUuid(), requestId, server);
 
-        player.sendMessage(Text.literal("✗ You declined the duel request from " + senderName)
-                .styled(style -> style.withColor(0xFF5555)), false);
-
-        if (sender != null) {
-            sender.sendMessage(Text.literal(player.getName().getString() + " declined your duel request.")
+            player.sendMessage(Text.literal("✗ You declined the duel request from " + senderName)
                     .styled(style -> style.withColor(0xFF5555)), false);
+
+            switch (result) {
+                case READY_TO_START -> {
+                    // Everyone responded and there's enough players
+                    BattleStarter.startBattle(existingSession, server);
+                    PendingBattleManager.removeSession(existingSession);
+                }
+                case CANCELLED_NOT_ENOUGH -> {
+                    // Not enough players accepted
+                    PendingBattleManager.cancelSession(existingSession.getSessionId(), server,
+                            "Not enough players accepted");
+                }
+                // WAITING - do nothing, still waiting for others
+            }
+        } else {
+            // Simple 1v1 decline
+            ServerPlayerEntity sender = server.getPlayerManager().getPlayer(senderName);
+
+            // Remove the request
+            PendingDuelManager.removeRequest(player.getUuid(), requestId);
+
+            player.sendMessage(Text.literal("✗ You declined the duel request from " + senderName)
+                    .styled(style -> style.withColor(0xFF5555)), false);
+
+            if (sender != null) {
+                sender.sendMessage(Text.literal(player.getName().getString() + " declined your duel request.")
+                        .styled(style -> style.withColor(0xFF5555)), false);
+            }
         }
 
         return 1;

@@ -1,10 +1,12 @@
 package com.munsterduck.gambapvp.network;
 
+import com.munsterduck.gambapvp.battle.WagerData;
 import com.munsterduck.gambapvp.util.KitData;
 import com.munsterduck.gambapvp.util.KitManager;
 import com.munsterduck.gambapvp.util.PendingDuelManager;
 import io.wispforest.owo.network.OwoNetChannel;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 
@@ -25,6 +27,9 @@ public class BattleRequestPacket {
         CHANNEL.registerClientboundDeferred(OpenBattleScreen.class);
         CHANNEL.registerClientboundDeferred(BattleRequest.class);
         CHANNEL.registerClientboundDeferred(SendKits.class);
+        CHANNEL.registerClientboundDeferred(ShowBattleHud.class);
+        CHANNEL.registerClientboundDeferred(UpdateBattleScore.class);
+        CHANNEL.registerClientboundDeferred(HideBattleHud.class);
 
         // Serverbound packets (real handlers)
         CHANNEL.registerServerbound(BattleRequestSend.class, (message, access) -> {
@@ -46,10 +51,24 @@ public class BattleRequestPacket {
                             sender.getName().getString(),
                             message.kitName(),
                             message.winsRequired(),
-                            message.keepInventory()
+                            message.keepInventory(),
+                            message.arenaId(),
+                            message.arenaX(),
+                            message.arenaY(),
+                            message.arenaZ(),
+                            message.arenaYaw(),
+                            message.arenaPitch(),
+                            message.arenaDimension()
                     );
 
                     PendingDuelManager.addRequest(target.getUuid(), request);
+
+                    // Store sender's wager
+                    if (message.wagerData() != null) {
+                        WagerData senderWager = WagerData.fromNbt(message.wagerData());
+                        PendingDuelManager.setWager(request.requestId, sender.getUuid(), senderWager);
+                        System.out.println("[GambaPVP] Stored wager for " + sender.getName().getString() + ": " + senderWager);
+                    }
 
                     // Send to target with request ID
                     CHANNEL.serverHandle(target).send(new BattleRequest(
@@ -79,7 +98,14 @@ public class BattleRequestPacket {
             String kitName,
             int winsRequired,
             boolean keepInventory,
-            String arenaId
+            String arenaId,
+            double arenaX,
+            double arenaY,
+            double arenaZ,
+            float arenaYaw,
+            float arenaPitch,
+            String arenaDimension,
+            NbtCompound wagerData
     ) {}
 
     public record BattleRequest(
@@ -101,4 +127,13 @@ public class BattleRequestPacket {
     public record SendKits(List<KitInfo> kits) {
         public record KitInfo(String name, ItemStack icon, List<ItemStack> items) {}
     }
+
+    // Battle HUD packets
+    public record PlayerScoreData(String playerUuid, String playerName, int score) {}
+
+    public record ShowBattleHud(String battleId, int winsRequired, List<PlayerScoreData> players) {}
+
+    public record UpdateBattleScore(String battleId, String playerName, int newScore) {}
+
+    public record HideBattleHud(String battleId) {}
 }

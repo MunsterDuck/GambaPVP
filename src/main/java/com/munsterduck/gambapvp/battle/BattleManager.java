@@ -1,7 +1,9 @@
 package com.munsterduck.gambapvp.battle;
 
+import net.minecraft.registry.RegistryKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.world.World;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -12,8 +14,14 @@ public class BattleManager {
 
     public static String createBattle(List<UUID> participants, String kitName,
                                       int winsRequired, boolean keepInventory) {
+        return createBattle(participants, kitName, winsRequired, keepInventory, null, null);
+    }
+
+    public static String createBattle(List<UUID> participants, String kitName,
+                                      int winsRequired, boolean keepInventory,
+                                      String arenaId, RegistryKey<World> battleWorld) {
         String battleId = UUID.randomUUID().toString();
-        BattleData battle = new BattleData(battleId, participants, kitName, winsRequired, keepInventory);
+        BattleData battle = new BattleData(battleId, participants, kitName, winsRequired, keepInventory, arenaId, battleWorld);
 
         activeBattles.put(battleId, battle);
         for (UUID uuid : participants) {

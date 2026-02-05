@@ -1,5 +1,6 @@
 package com.munsterduck.gambapvp.network;
 
+import com.munsterduck.gambapvp.client.BattleHudRenderer;
 import com.munsterduck.gambapvp.client.ClientKitCache;
 import com.munsterduck.gambapvp.gui.BattleSetupScreen;
 import net.minecraft.client.MinecraftClient;
@@ -94,6 +95,28 @@ public class BattleRequestPacketClient {
                 if (MinecraftClient.getInstance().currentScreen instanceof BattleSetupScreen screen) {
                     screen.refreshKits();
                 }
+            }
+        );
+
+        // Battle HUD packets
+        BattleRequestPacket.CHANNEL.registerClientbound(
+            BattleRequestPacket.ShowBattleHud.class,
+            (message, access) -> {
+                BattleHudRenderer.showHud(message);
+            }
+        );
+
+        BattleRequestPacket.CHANNEL.registerClientbound(
+            BattleRequestPacket.UpdateBattleScore.class,
+            (message, access) -> {
+                BattleHudRenderer.updateScore(message);
+            }
+        );
+
+        BattleRequestPacket.CHANNEL.registerClientbound(
+            BattleRequestPacket.HideBattleHud.class,
+            (message, access) -> {
+                BattleHudRenderer.hideHud(message.battleId());
             }
         );
     }

@@ -184,18 +184,74 @@
                                 <flow-layout direction="vertical" id="wager-step">
                                     <children>
                                         <label>
-                                            <text>Add wager items (optional)</text>
-                                            <color>#FFFF00</color>
+                                            <text>Set Your Wager (Optional)</text>
+                                            <color>#FFD700</color>
+                                            <shadow>true</shadow>
                                         </label>
 
-                                        <button id="add-wager-button">
-                                            <text>Add Wager Items (Coming Soon)</text>
-                                        </button>
+                                        <label id="wager-info-label">
+                                            <text>Add gambleable items to the pot</text>
+                                            <color>#AAAAAA</color>
+                                        </label>
+
+                                        <!-- Wager Items Grid -->
+                                        <flow-layout direction="vertical" id="wager-items-container">
+                                            <children>
+                                                <scroll direction="vertical" id="wager-items-scroll">
+                                                    <flow-layout id="wager-items-list" direction="vertical">
+                                                        <children>
+                                                            <label id="no-wager-label">
+                                                                <text>No items wagered yet</text>
+                                                                <color>#888888</color>
+                                                                <shadow>true</shadow>
+                                                            </label>
+                                                            <!-- Wager items will be added here dynamically -->
+                                                        </children>
+                                                        <gap>2</gap>
+                                                        <horizontal-alignment>center</horizontal-alignment>
+                                                        <sizing>
+                                                            <horizontal method="content">0</horizontal>
+                                                            <vertical method="content">0</vertical>
+                                                        </sizing>
+                                                    </flow-layout>
+                                                    <surface>
+                                                        <outline>#000000</outline>
+                                                    </surface>
+                                                    <padding>
+                                                        <all>5</all>
+                                                    </padding>
+                                                    <sizing>
+                                                        <vertical method="fixed">80</vertical>
+                                                        <horizontal method="fixed">200</horizontal>
+                                                    </sizing>
+                                                </scroll>
+
+                                                <!-- Add item from inventory button -->
+                                                <button id="add-wager-item-button">
+                                                    <text>Set Wager Items...</text>
+                                                </button>
+
+                                                <button id="clear-wager-button">
+                                                    <text>Clear Wager</text>
+                                                    <renderer>
+                                                        <flat color="dark-gray" hovered-color="gray" disabled-color="black"/>
+                                                    </renderer>
+                                                </button>
+                                            </children>
+                                            <gap>3</gap>
+                                            <padding>
+                                                <all>5</all>
+                                            </padding>
+                                            <surface>
+                                                <panel dark="true"/>
+                                            </surface>
+                                        </flow-layout>
 
                                         <button id="send-request-button">
                                             <text>Send Battle Request</text>
                                         </button>
                                     </children>
+                                    <gap>5</gap>
                                     <horizontal-alignment>center</horizontal-alignment>
                                 </flow-layout>
                             </children>
@@ -246,6 +302,34 @@
         </flow-layout>
     </components>
     <templates>
+        <template name="wager-item-row">
+            <flow-layout direction="horizontal">
+                <children>
+                    <item id="wager-item-icon">
+                        <stack>{{item-stack}}</stack>
+                    </item>
+                    <label id="wager-item-name">
+                        <text>{{item-name}} ×{{item-count}}</text>
+                        <color>#FFFFFF</color>
+                        <shadow>true</shadow>
+                    </label>
+                </children>
+                <gap>5</gap>
+                <padding>
+                    <all>3</all>
+                </padding>
+                <surface>
+                    <panel dark="false"/>
+                </surface>
+                <horizontal-alignment>left</horizontal-alignment>
+                <vertical-alignment>center</vertical-alignment>
+                <sizing>
+                    <horizontal method="fixed">185</horizontal>
+                    <vertical method="content">0</vertical>
+                </sizing>
+            </flow-layout>
+        </template>
+
         <template name="win-button">
             <flow-layout direction="horizontal">
                 <children>

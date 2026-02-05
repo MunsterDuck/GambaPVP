@@ -1,0 +1,193 @@
+<owo-ui xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/wisp-forest/owo-lib/1.20/owo-ui.xsd">
+    <components>
+        <flow-layout direction="vertical">
+            <children>
+                <!-- Main wager panel -->
+                <flow-layout direction="vertical" id="wager-panel">
+                    <children>
+                        <!-- Title -->
+                        <label id="title-label">
+                            <text>Set Your Wager</text>
+                            <color>#FFD700</color>
+                            <shadow>true</shadow>
+                        </label>
+
+                        <!-- Opponent name -->
+                        <label id="opponent-label">
+                            <text>Wagering against: Unknown</text>
+                            <color>#AAAAAA</color>
+                        </label>
+
+                        <!-- Wager grid container -->
+                        <flow-layout direction="vertical" id="wager-container">
+                            <children>
+                                <label>
+                                    <text>Place Gambleable Items</text>
+                                    <color>#FFFFFF</color>
+                                    <shadow>true</shadow>
+                                </label>
+
+                                <!-- 3x3 Item grid -->
+                                <flow-layout direction="horizontal" id="item-grid-container">
+                                    <children>
+                                        <!-- This will hold the 3x3 slots -->
+                                    </children>
+                                    <horizontal-alignment>center</horizontal-alignment>
+                                    <padding>
+                                        <all>5</all>
+                                    </padding>
+                                    <surface>
+                                        <panel dark="true"/>
+                                    </surface>
+                                </flow-layout>
+
+                                <!-- Currency input (conditional - only if Notch Currency is loaded) -->
+                                <flow-layout direction="vertical" id="currency-container">
+                                    <children>
+                                        <label>
+                                            <text>Notch Currency Amount</text>
+                                            <color>#FFFFFF</color>
+                                            <shadow>true</shadow>
+                                        </label>
+
+                                        <flow-layout direction="horizontal">
+                                            <children>
+                                                <text-box id="currency-input">
+                                                    <text>0</text>
+                                                    <sizing>
+                                                        <horizontal method="fixed">100</horizontal>
+                                                        <vertical method="fixed">20</vertical>
+                                                    </sizing>
+                                                </text-box>
+
+                                                <label id="currency-balance-label">
+                                                    <text>Balance: 0</text>
+                                                    <color>#AAAAAA</color>
+                                                    <shadow>true</shadow>
+                                                </label>
+                                            </children>
+                                            <gap>5</gap>
+                                            <vertical-alignment>center</vertical-alignment>
+                                        </flow-layout>
+                                    </children>
+                                    <gap>3</gap>
+                                    <padding>
+                                        <all>5</all>
+                                    </padding>
+                                    <surface>
+                                        <panel dark="true"/>
+                                    </surface>
+                                </flow-layout>
+
+                                <!-- Ready status -->
+                                <flow-layout direction="horizontal" id="status-container">
+                                    <children>
+                                        <checkbox id="ready-checkbox">
+                                            <active>false</active>
+                                            <sizing>
+                                                <horizontal method="fixed">20</horizontal>
+                                                <vertical method="fixed">20</vertical>
+                                            </sizing>
+                                        </checkbox>
+
+                                        <label id="ready-label">
+                                            <text>Ready to Duel</text>
+                                            <color>#FFFFFF</color>
+                                            <shadow>true</shadow>
+                                        </label>
+                                    </children>
+                                    <gap>5</gap>
+                                    <padding>
+                                        <all>5</all>
+                                    </padding>
+                                    <surface>
+                                        <panel dark="false"/>
+                                    </surface>
+                                    <horizontal-alignment>center</horizontal-alignment>
+                                </flow-layout>
+
+                                <!-- Opponent ready status -->
+                                <label id="opponent-status-label">
+                                    <text>Waiting for opponent...</text>
+                                    <color>#FFFF55</color>
+                                    <shadow>true</shadow>
+                                </label>
+
+                                <!-- Pot preview -->
+                                <flow-layout direction="vertical" id="pot-preview">
+                                    <children>
+                                        <label>
+                                            <text>Potential Winnings</text>
+                                            <color>#55FF55</color>
+                                            <shadow>true</shadow>
+                                        </label>
+
+                                        <label id="pot-items-label">
+                                            <text>Items: 0</text>
+                                            <color>#AAAAAA</color>
+                                        </label>
+
+                                        <label id="pot-currency-label">
+                                            <text>Currency: 0</text>
+                                            <color>#AAAAAA</color>
+                                        </label>
+                                    </children>
+                                    <padding>
+                                        <all>5</all>
+                                    </padding>
+                                    <surface>
+                                        <panel dark="true"/>
+                                    </surface>
+                                </flow-layout>
+                            </children>
+                            <gap>5</gap>
+                        </flow-layout>
+
+                        <!-- Action buttons -->
+                        <flow-layout direction="horizontal" id="button-row">
+                            <children>
+                                <button id="cancel-button">
+                                    <text>Cancel</text>
+                                    <sizing>
+                                        <horizontal method="fixed">100</horizontal>
+                                    </sizing>
+                                    <renderer>
+                                        <flat color="dark-gray" hovered-color="gray" disabled-color="black"/>
+                                    </renderer>
+                                </button>
+
+                                <button id="confirm-button">
+                                    <text>Confirm Wager</text>
+                                    <active>false</active>
+                                    <sizing>
+                                        <horizontal method="fixed">120</horizontal>
+                                    </sizing>
+                                </button>
+                            </children>
+                            <gap>5</gap>
+                            <horizontal-alignment>center</horizontal-alignment>
+                        </flow-layout>
+                    </children>
+                    <gap>5</gap>
+                    <padding>
+                        <all>15</all>
+                    </padding>
+                    <horizontal-alignment>center</horizontal-alignment>
+                    <surface>
+                        <panel dark="true"/>
+                    </surface>
+                    <sizing>
+                        <horizontal method="content">0</horizontal>
+                        <vertical method="content">0</vertical>
+                    </sizing>
+                </flow-layout>
+            </children>
+            <vertical-alignment>center</vertical-alignment>
+            <horizontal-alignment>center</horizontal-alignment>
+            <surface>
+                <vanilla-translucent/>
+            </surface>
+        </flow-layout>
+    </components>
+</owo-ui>
