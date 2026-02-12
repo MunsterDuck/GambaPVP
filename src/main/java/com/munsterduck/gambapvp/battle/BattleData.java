@@ -18,6 +18,7 @@ public class BattleData {
     private final int winsRequired;
     private final boolean keepInventory;
     private final Set<BlockPos> placedBlocks;
+    private final Set<UUID> placedEntityUuids; // Entities (crystals, TNT) placed by battle participants
     private final WagerPot wagerPot;
     private final Map<UUID, OriginalPosition> originalPositions;
     private final Map<UUID, OriginalPosition> arenaSpawns;
@@ -62,6 +63,7 @@ public class BattleData {
         this.winsRequired = winsRequired;
         this.keepInventory = keepInventory;
         this.placedBlocks = new HashSet<>();
+        this.placedEntityUuids = new HashSet<>();
         this.wagerPot = new WagerPot();
         this.originalPositions = new HashMap<>();
         this.arenaSpawns = new HashMap<>();
@@ -104,6 +106,18 @@ public class BattleData {
 
     public Set<BlockPos> getPlacedBlocks() {
         return placedBlocks;
+    }
+
+    public void addPlacedEntity(UUID entityUuid) {
+        placedEntityUuids.add(entityUuid);
+    }
+
+    public boolean isPlacedEntity(UUID entityUuid) {
+        return placedEntityUuids.contains(entityUuid);
+    }
+
+    public Set<UUID> getPlacedEntityUuids() {
+        return placedEntityUuids;
     }
 
     public void addWager(UUID playerUuid, WagerData wager) {

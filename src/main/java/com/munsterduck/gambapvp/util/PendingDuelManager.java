@@ -22,13 +22,15 @@ public class PendingDuelManager {
         public final double arenaX, arenaY, arenaZ;
         public final float arenaYaw, arenaPitch;
         public final String arenaDimension;
+        public final int arenaRegionWidth, arenaRegionLength;
         public final long timestamp;
         public final UUID requestId; // Unique ID for this specific request
 
         public DuelRequest(UUID senderUuid, String senderName, String kitName, int winsRequired,
                           boolean keepInventory, String arenaId,
                           double arenaX, double arenaY, double arenaZ,
-                          float arenaYaw, float arenaPitch, String arenaDimension) {
+                          float arenaYaw, float arenaPitch, String arenaDimension,
+                          int arenaRegionWidth, int arenaRegionLength) {
             this.senderUuid = senderUuid;
             this.senderName = senderName;
             this.kitName = kitName;
@@ -41,6 +43,8 @@ public class PendingDuelManager {
             this.arenaYaw = arenaYaw;
             this.arenaPitch = arenaPitch;
             this.arenaDimension = arenaDimension;
+            this.arenaRegionWidth = arenaRegionWidth;
+            this.arenaRegionLength = arenaRegionLength;
             this.timestamp = System.currentTimeMillis();
             this.requestId = UUID.randomUUID();
         }

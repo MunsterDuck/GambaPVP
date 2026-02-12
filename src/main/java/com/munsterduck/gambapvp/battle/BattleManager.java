@@ -3,6 +3,7 @@ package com.munsterduck.gambapvp.battle;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 import java.util.*;
@@ -57,5 +58,29 @@ public class BattleManager {
 
     public static boolean isInBattle(UUID playerUuid) {
         return playerBattles.containsKey(playerUuid);
+    }
+
+    /**
+     * Find the battle that a placed entity (crystal, TNT, etc.) belongs to.
+     */
+    public static BattleData findBattleByPlacedEntity(UUID entityUuid) {
+        for (BattleData battle : activeBattles.values()) {
+            if (battle.isActive() && battle.isPlacedEntity(entityUuid)) {
+                return battle;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Find the battle that a placed block belongs to.
+     */
+    public static BattleData findBattleByPlacedBlock(BlockPos pos) {
+        for (BattleData battle : activeBattles.values()) {
+            if (battle.isActive() && battle.getPlacedBlocks().contains(pos)) {
+                return battle;
+            }
+        }
+        return null;
     }
 }

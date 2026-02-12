@@ -115,30 +115,38 @@ public class WagerPot {
             WagerData loserWager = playerWagers.get(loserUuid);
             WagerData loserReturns = new WagerData();
 
-            // Return unmatched items to loser
-            Map<String, Integer> winnerItemCounts = getItemCounts(winnerOriginalWager.getItems());
-            Map<String, Integer> loserItemCounts = getItemCounts(loserWager.getItems());
+            if (winnerOriginalWager == null) {
+                // Winner had no wager - return everything to loser
+                for (ItemStack stack : loserWager.getItems()) {
+                    loserReturns.addItem(stack.copy());
+                }
+                loserReturns.setCurrency(loserWager.getCurrency());
+            } else {
+                // Return unmatched items to loser
+                Map<String, Integer> winnerItemCounts = getItemCounts(winnerOriginalWager.getItems());
+                Map<String, Integer> loserItemCounts = getItemCounts(loserWager.getItems());
 
-            for (String itemKey : loserItemCounts.keySet()) {
-                int loserCount = loserItemCounts.get(itemKey);
-                int winnerCount = winnerItemCounts.getOrDefault(itemKey, 0);
-                int unmatchedCount = loserCount - Math.min(loserCount, winnerCount);
+                for (String itemKey : loserItemCounts.keySet()) {
+                    int loserCount = loserItemCounts.get(itemKey);
+                    int winnerCount = winnerItemCounts.getOrDefault(itemKey, 0);
+                    int unmatchedCount = loserCount - Math.min(loserCount, winnerCount);
 
-                if (unmatchedCount > 0) {
-                    ItemStack unmatchedStack = findItemStackByKey(loserWager.getItems(), itemKey);
-                    if (unmatchedStack != null) {
-                        ItemStack returnStack = unmatchedStack.copy();
-                        returnStack.setCount(unmatchedCount);
-                        loserReturns.addItem(returnStack);
+                    if (unmatchedCount > 0) {
+                        ItemStack unmatchedStack = findItemStackByKey(loserWager.getItems(), itemKey);
+                        if (unmatchedStack != null) {
+                            ItemStack returnStack = unmatchedStack.copy();
+                            returnStack.setCount(unmatchedCount);
+                            loserReturns.addItem(returnStack);
+                        }
                     }
                 }
-            }
 
-            // Return unmatched currency
-            int loserCurrency = loserWager.getCurrency();
-            int winnerCurrency = winnerOriginalWager.getCurrency();
-            int unmatchedCurrency = loserCurrency - Math.min(loserCurrency, winnerCurrency);
-            loserReturns.setCurrency(unmatchedCurrency);
+                // Return unmatched currency
+                int loserCurrency = loserWager.getCurrency();
+                int winnerCurrency = winnerOriginalWager.getCurrency();
+                int unmatchedCurrency = loserCurrency - Math.min(loserCurrency, winnerCurrency);
+                loserReturns.setCurrency(unmatchedCurrency);
+            }
 
             if (!loserReturns.isEmpty()) {
                 distribution.put(loserUuid, loserReturns);

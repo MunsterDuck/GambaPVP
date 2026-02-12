@@ -36,6 +36,7 @@ public class BattleSetupScreen extends BaseUIModelScreen<FlowLayout> {
     private double selectedArenaX = 0, selectedArenaY = 0, selectedArenaZ = 0;
     private float selectedArenaYaw = 0, selectedArenaPitch = 0;
     private String selectedArenaDimension = "";
+    private int selectedArenaRegionWidth = 0, selectedArenaRegionLength = 0;
     private com.munsterduck.gambapvp.battle.WagerData playerWager = new com.munsterduck.gambapvp.battle.WagerData();
 
     // Check if Location Tooltip mod is loaded
@@ -343,6 +344,7 @@ public class BattleSetupScreen extends BaseUIModelScreen<FlowLayout> {
             // Make clickable
             final String arenaId = arena.id;
             final int ax = arena.x, ay = arena.y, az = arena.z;
+            final int aRegionW = arena.regionWidth, aRegionL = arena.regionLength;
             final String adim = arena.dimension.toString();
             arenaButton.mouseDown().subscribe((mouseX, mouseY, button) -> {
                 if (button == 0) {
@@ -353,6 +355,8 @@ public class BattleSetupScreen extends BaseUIModelScreen<FlowLayout> {
                     selectedArenaYaw = 0;
                     selectedArenaPitch = 0;
                     selectedArenaDimension = adim;
+                    selectedArenaRegionWidth = aRegionW;
+                    selectedArenaRegionLength = aRegionL;
                     nextStep();
                     return true;
                 }
@@ -388,6 +392,8 @@ public class BattleSetupScreen extends BaseUIModelScreen<FlowLayout> {
                 selectedArenaYaw = 0;
                 selectedArenaPitch = 0;
                 selectedArenaDimension = "";
+                selectedArenaRegionWidth = 0;
+                selectedArenaRegionLength = 0;
                 nextStep();
                 return true;
             }
@@ -532,6 +538,8 @@ public class BattleSetupScreen extends BaseUIModelScreen<FlowLayout> {
                         selectedArenaYaw,
                         selectedArenaPitch,
                         selectedArenaDimension,
+                        selectedArenaRegionWidth,
+                        selectedArenaRegionLength,
                         playerWager.toNbt()
                 )
         );
@@ -711,12 +719,14 @@ public class BattleSetupScreen extends BaseUIModelScreen<FlowLayout> {
                     BlockPos b = (BlockPos) bField.get(row);
                     boolean allowPvP = Boolean.TRUE.equals(pvpField.get(row));
 
-                    // Calculate center position
+                    // Calculate center position and region size
                     int centerX = (a.getX() + b.getX()) / 2;
                     int centerY = (a.getY() + b.getY()) / 2;
                     int centerZ = (a.getZ() + b.getZ()) / 2;
+                    int regionWidth = Math.abs(b.getX() - a.getX());
+                    int regionLength = Math.abs(b.getZ() - a.getZ());
 
-                    ArenaInfo arenaInfo = new ArenaInfo(id, name, centerX, centerY, centerZ, dim, allowPvP);
+                    ArenaInfo arenaInfo = new ArenaInfo(id, name, centerX, centerY, centerZ, regionWidth, regionLength, dim, allowPvP);
 
                     if (allowPvP) {
                         arenas.add(arenaInfo);
@@ -818,16 +828,19 @@ public class BattleSetupScreen extends BaseUIModelScreen<FlowLayout> {
         final String id;
         final String name;
         final int x, y, z;
+        final int regionWidth, regionLength;
         final Identifier dimension;
         final String coordinates;
         final boolean allowPvP;
 
-        ArenaInfo(String id, String name, int x, int y, int z, Identifier dimension, boolean allowPvP) {
+        ArenaInfo(String id, String name, int x, int y, int z, int regionWidth, int regionLength, Identifier dimension, boolean allowPvP) {
             this.id = id;
             this.name = name;
             this.x = x;
             this.y = y;
             this.z = z;
+            this.regionWidth = regionWidth;
+            this.regionLength = regionLength;
             this.dimension = dimension;
             this.coordinates = String.format("(%d, %d, %d)", x, y, z);
             this.allowPvP = allowPvP;

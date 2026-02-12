@@ -2,6 +2,7 @@ package com.munsterduck.gambapvp.battle;
 
 import com.munsterduck.gambapvp.GambaPVP;
 import com.munsterduck.gambapvp.util.ArenaManager;
+import com.munsterduck.gambapvp.util.CurrencyHelper;
 import com.munsterduck.gambapvp.util.InventoryManager;
 import com.munsterduck.gambapvp.util.PendingDuelManager;
 import net.minecraft.registry.RegistryKey;
@@ -66,10 +67,14 @@ public class BattleStarter {
             battle.addWager(entry.getKey(), entry.getValue());
         }
 
+        // Deduct currency wagers from all players immediately
+        deductCurrencyWagers(wagers, server);
+
         // Calculate spawn points for arena if applicable
         ArenaManager.ArenaLocation[] spawnPoints = null;
         if (arenaLocation != null) {
-            spawnPoints = calculateSpawnPoints(arenaLocation, participants.size());
+            spawnPoints = calculateSpawnPoints(arenaLocation, participants.size(),
+                    request.arenaRegionWidth, request.arenaRegionLength);
         }
 
         // Process each participant
@@ -173,10 +178,14 @@ public class BattleStarter {
             battle.addWager(entry.getKey(), entry.getValue());
         }
 
+        // Deduct currency wagers from all players immediately
+        deductCurrencyWagers(wagers, server);
+
         // Calculate spawn points
         ArenaManager.ArenaLocation[] spawnPoints = null;
         if (arenaLocation != null) {
-            spawnPoints = calculateSpawnPoints(arenaLocation, 2);
+            spawnPoints = calculateSpawnPoints(arenaLocation, 2,
+                    request.arenaRegionWidth, request.arenaRegionLength);
         }
 
         // Process each participant
@@ -235,21 +244,66 @@ public class BattleStarter {
     }
 
     /**
-     * Calculate spawn points for multiple players in an arena.
-     * Offsets players so they don't spawn on top of each other.
+     * Deduct currency wagers from all players at battle start.
      */
-    private static ArenaManager.ArenaLocation[] calculateSpawnPoints(ArenaManager.ArenaLocation baseLocation, int playerCount) {
+    private static void deductCurrencyWagers(Map<UUID, WagerData> wagers, MinecraftServer server) {
+        for (Map.Entry<UUID, WagerData> entry : wagers.entrySet()) {
+            int currency = entry.getValue().getCurrency();
+            if (currency > 0) {
+                ServerPlayerEntity player = server.getPlayerManager().getPlayer(entry.getKey());
+                if (player != null) {
+                    boolean success = CurrencyHelper.withdraw(player, currency);
+                    if (success) {
+                        player.sendMessage(Text.literal("Wagered " + currency + " coins!")
+                                .styled(s -> s.withColor(0xFFAA00)), false);
+                    } else {
+                        player.sendMessage(Text.literal("Failed to deduct wager - insufficient funds!")
+                                .styled(s -> s.withColor(0xFF5555)), false);
+                        // Zero out the currency wager since we couldn't deduct
+                        entry.getValue().setCurrency(0);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Calculate spawn points for multiple players in an arena.
+     * Places players in a circle around the center, all facing inward.
+     * Uses arena region dimensions to determine spacing.
+     * For 2 players: opposite sides facing each other.
+     * For 3+: evenly spaced around a circle facing the center.
+     */
+    private static ArenaManager.ArenaLocation[] calculateSpawnPoints(
+            ArenaManager.ArenaLocation baseLocation, int playerCount,
+            int regionWidth, int regionLength) {
+        // Use the smaller dimension to ensure all spawns fit inside the arena
+        // Leave a 2-block margin from walls so players aren't against the edge
+        double minDimension = Math.min(regionWidth, regionLength);
+        double radius;
+        if (minDimension > 4) {
+            radius = (minDimension / 2.0) - 2.0;
+        } else {
+            // Fallback for very small or unset regions
+            radius = 3.0;
+        }
+
         ArenaManager.ArenaLocation[] spawns = new ArenaManager.ArenaLocation[playerCount];
+
         for (int i = 0; i < playerCount; i++) {
-            // Offset players so they face each other
-            double offsetX = (i % 2 == 0 ? 3 : -3);
-            float yaw = i % 2 == 0 ? baseLocation.yaw : baseLocation.yaw + 180;
+            double angle = 2.0 * Math.PI * i / playerCount;
+            double offsetX = radius * Math.cos(angle);
+            double offsetZ = radius * Math.sin(angle);
+
+            // Calculate yaw to face the center
+            float yaw = (float) (-Math.toDegrees(Math.atan2(-offsetX, -offsetZ)));
+
             spawns[i] = new ArenaManager.ArenaLocation(
                     baseLocation.x + offsetX,
                     baseLocation.y,
-                    baseLocation.z,
+                    baseLocation.z + offsetZ,
                     yaw,
-                    baseLocation.pitch,
+                    0, // look straight ahead, not up/down
                     baseLocation.dimension
             );
         }

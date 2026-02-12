@@ -6,6 +6,7 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.munsterduck.gambapvp.battle.*;
 import com.munsterduck.gambapvp.network.BattleRequestPacket;
+import com.munsterduck.gambapvp.util.CurrencyHelper;
 import com.munsterduck.gambapvp.util.PendingDuelManager;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.server.MinecraftServer;
@@ -91,7 +92,17 @@ public class GDuelCommand {
         PendingBattleSession existingSession = PendingBattleManager.getSessionByRequest(requestId);
 
         if (existingSession != null) {
-            // Multi-player request - add this player's acceptance
+            // Multi-player request - auto-match wager (partial if insufficient)
+            WagerData senderWager = PendingDuelManager.getWager(requestId, request.senderUuid);
+            if (senderWager != null && senderWager.getCurrency() > 0) {
+                int acceptorBalance = CurrencyHelper.getBalance(player);
+                int contribution = Math.min(senderWager.getCurrency(), acceptorBalance);
+
+                WagerData acceptorWager = new WagerData();
+                acceptorWager.setCurrency(contribution);
+                PendingDuelManager.setWager(requestId, player.getUuid(), acceptorWager);
+            }
+
             PendingBattleManager.SessionResult result = PendingBattleManager.processAccept(
                     player.getUuid(), requestId, server);
 
@@ -112,12 +123,22 @@ public class GDuelCommand {
                 }
             }
         } else {
-            // First acceptance - check if this is a 1v1 or multi-player duel
-            // For now, treat as 1v1 direct start
+            // First acceptance - 1v1 direct start
+            // Auto-match the sender's currency wager (partial if insufficient)
+            WagerData senderWager = PendingDuelManager.getWager(requestId, request.senderUuid);
+            if (senderWager != null && senderWager.getCurrency() > 0) {
+                int acceptorBalance = CurrencyHelper.getBalance(player);
+                int contribution = Math.min(senderWager.getCurrency(), acceptorBalance);
+
+                WagerData acceptorWager = new WagerData();
+                acceptorWager.setCurrency(contribution);
+                PendingDuelManager.setWager(requestId, player.getUuid(), acceptorWager);
+            }
+
             // Remove the request so it can't be accepted/declined again
             PendingDuelManager.removeRequest(player.getUuid(), requestId);
 
-            player.sendMessage(Text.literal("✓ You accepted the duel request from " + senderName)
+            player.sendMessage(Text.literal("\u2713 You accepted the duel request from " + senderName)
                     .styled(style -> style.withColor(0x55FF55)), false);
 
             sender.sendMessage(Text.literal(player.getName().getString() + " accepted your duel request!")

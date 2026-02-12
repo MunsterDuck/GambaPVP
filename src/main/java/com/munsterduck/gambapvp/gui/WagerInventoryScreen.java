@@ -1,6 +1,8 @@
 package com.munsterduck.gambapvp.gui;
 
 import com.munsterduck.gambapvp.battle.WagerData;
+import com.munsterduck.gambapvp.network.BattleRequestPacket;
+import com.munsterduck.gambapvp.network.BattleRequestPacketClient;
 import com.munsterduck.gambapvp.util.ModTags;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
@@ -70,6 +72,11 @@ public class WagerInventoryScreen extends Screen {
         super.init();
         this.x = (this.width - BACKGROUND_WIDTH) / 2;
         this.y = (this.height - BACKGROUND_HEIGHT) / 2;
+
+        // Request balance from server
+        if (NOTCH_CURRENCY_LOADED) {
+            BattleRequestPacket.CHANNEL.clientHandle().send(new BattleRequestPacket.RequestBalance());
+        }
 
         // Currency input field (only if Notch Currency is loaded)
         if (NOTCH_CURRENCY_LOADED) {
@@ -509,7 +516,7 @@ public class WagerInventoryScreen extends Screen {
                             client.player.sendMessage(
                                 Text.literal("Insufficient currency! You have: " + balance).styled(style -> style.withColor(0xFF5555)),
                                 false
-                            );
+                                );
                         }
                         return;
                     }
@@ -556,22 +563,7 @@ public class WagerInventoryScreen extends Screen {
         if (!NOTCH_CURRENCY_LOADED) {
             return 0;
         }
-
-        try {
-            // Use the client-side cached balance from ClientBalance class
-            Class<?> clientBalanceClass = Class.forName("net.fugginbeenus.notchcurrency.client.ClientBalance");
-            java.lang.reflect.Method getMethod = clientBalanceClass.getMethod("get");
-            Object result = getMethod.invoke(null);
-            if (result instanceof Number) {
-                return ((Number) result).intValue();
-            }
-        } catch (ClassNotFoundException e) {
-            System.err.println("[GambaPVP] ClientBalance class not found - NotchCurrency may not be loaded properly");
-        } catch (Exception e) {
-            System.err.println("[GambaPVP] Failed to get currency balance: " + e.getMessage());
-        }
-
-        return 0;
+        return BattleRequestPacketClient.getCachedBalance();
     }
 
     @Override

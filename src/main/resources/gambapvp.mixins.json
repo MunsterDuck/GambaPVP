@@ -5,7 +5,12 @@
 	"mixins": [
 		"ModEntityDataSaverMixin",
 		"BlockPlaceMixin",
-		"BattleDeathPreventMixin"
+		"BattleDeathPreventMixin",
+		"ExplosionBlockProtectMixin",
+		"EndCrystalPlaceMixin",
+		"TntEntityTrackMixin",
+		"BattleItemTrackMixin",
+		"ItemPickupProtectMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

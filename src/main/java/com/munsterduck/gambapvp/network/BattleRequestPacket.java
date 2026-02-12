@@ -1,6 +1,7 @@
 package com.munsterduck.gambapvp.network;
 
 import com.munsterduck.gambapvp.battle.WagerData;
+import com.munsterduck.gambapvp.util.CurrencyHelper;
 import com.munsterduck.gambapvp.util.KitData;
 import com.munsterduck.gambapvp.util.KitManager;
 import com.munsterduck.gambapvp.util.PendingDuelManager;
@@ -30,6 +31,7 @@ public class BattleRequestPacket {
         CHANNEL.registerClientboundDeferred(ShowBattleHud.class);
         CHANNEL.registerClientboundDeferred(UpdateBattleScore.class);
         CHANNEL.registerClientboundDeferred(HideBattleHud.class);
+        CHANNEL.registerClientboundDeferred(SendBalance.class);
 
         // Serverbound packets (real handlers)
         CHANNEL.registerServerbound(BattleRequestSend.class, (message, access) -> {
@@ -58,25 +60,32 @@ public class BattleRequestPacket {
                             message.arenaZ(),
                             message.arenaYaw(),
                             message.arenaPitch(),
-                            message.arenaDimension()
+                            message.arenaDimension(),
+                            message.arenaRegionWidth(),
+                            message.arenaRegionLength()
                     );
 
                     PendingDuelManager.addRequest(target.getUuid(), request);
 
                     // Store sender's wager
+                    int wagerCurrency = 0;
+                    int wagerItemCount = 0;
                     if (message.wagerData() != null) {
                         WagerData senderWager = WagerData.fromNbt(message.wagerData());
                         PendingDuelManager.setWager(request.requestId, sender.getUuid(), senderWager);
-                        System.out.println("[GambaPVP] Stored wager for " + sender.getName().getString() + ": " + senderWager);
+                        wagerCurrency = senderWager.getCurrency();
+                        wagerItemCount = senderWager.getItems().size();
                     }
 
-                    // Send to target with request ID
+                    // Send to target with request ID and wager info
                     CHANNEL.serverHandle(target).send(new BattleRequest(
                             sender.getName().getString(),
                             message.kitName(),
                             message.winsRequired(),
                             message.keepInventory(),
-                            request.requestId.toString()
+                            request.requestId.toString(),
+                            wagerCurrency,
+                            wagerItemCount
                     ));
                 }
             }
@@ -88,6 +97,11 @@ public class BattleRequestPacket {
                     .toList();
 
             CHANNEL.serverHandle(access.player()).send(new SendKits(kits));
+        });
+
+        CHANNEL.registerServerbound(RequestBalance.class, (message, access) -> {
+            int balance = CurrencyHelper.getBalance(access.player());
+            CHANNEL.serverHandle(access.player()).send(new SendBalance(balance));
         });
     }
 
@@ -105,6 +119,8 @@ public class BattleRequestPacket {
             float arenaYaw,
             float arenaPitch,
             String arenaDimension,
+            int arenaRegionWidth,
+            int arenaRegionLength,
             NbtCompound wagerData
     ) {}
 
@@ -113,7 +129,9 @@ public class BattleRequestPacket {
             String kitName,
             int winsRequired,
             boolean keepInventory,
-            String requestId
+            String requestId,
+            int wagerCurrency,
+            int wagerItemCount
     ) {}
 
     public record BattleResponse(
@@ -136,4 +154,8 @@ public class BattleRequestPacket {
     public record UpdateBattleScore(String battleId, String playerName, int newScore) {}
 
     public record HideBattleHud(String battleId) {}
+
+    // Currency balance packets
+    public record RequestBalance() {}
+    public record SendBalance(int balance) {}
 }
